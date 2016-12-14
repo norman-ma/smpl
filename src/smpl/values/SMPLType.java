@@ -16,6 +16,7 @@ public enum SMPLType {
     CHARACTER("char"),
     EMPTYLIST("nil"),
     VECTOR("vector"),
+    SUBVECTOR("subvector"),
     PAIR("pair"),
     LIST("list"),
     FUNCTION("user function");

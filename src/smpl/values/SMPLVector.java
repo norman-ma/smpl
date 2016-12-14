@@ -5,6 +5,8 @@
  */
 package smpl.values;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author namro_000
@@ -16,9 +18,26 @@ public class SMPLVector extends SMPLValue<SMPLVector>{
     
     public SMPLVector(SMPLValue<?>...members){
         int i = members.length;
-        value = new SMPLValue<?>[i];
+        SMPLSubVector subv;
+        ArrayList<SMPLValue<?>> temp = new ArrayList<>();
         for(int c = 0; c<i; c++){
-            value[c] = members[c];
+            if(members[c].getType().equals(SMPLType.SUBVECTOR)){
+               subv = (SMPLSubVector)members[c];
+               subv.eval();
+               for(SMPLValue<?> v:subv.value()){
+                   temp.add(v);
+               }
+            }
+            else{
+                temp.add(members[c]);
+            }            
+        }
+        
+        i = temp.size();
+        value = new SMPLValue<?>[i];
+        
+        for(int c = 0; c < i; c++){
+            value[c] = temp.get(c);
         }
         len = value.length;
     }
@@ -37,6 +56,7 @@ public class SMPLVector extends SMPLValue<SMPLVector>{
     }
 
     @Override
+    
     public String toString(){
         String items;       
         switch (len) {
@@ -45,11 +65,11 @@ public class SMPLVector extends SMPLValue<SMPLVector>{
             default: 
                 items = value[0].toString();
                 for (int i = 1; i < len; i++) {
-                    items += ", "+value[i].toString();
+                    items += " "+value[i].toString();
                 }
         }
         
-        return "[: "+items+" :]";
+        return "["+items+"]";
     }
     
 }
