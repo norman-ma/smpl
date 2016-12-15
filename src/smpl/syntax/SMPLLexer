@@ -1,0 +1,57 @@
+package smpl.syntax;
+
+/* Specification for ArithExp tokens */
+
+// user customisations
+import java_cup.runtime.*;
+
+// Jlex directives
+%%
+    
+%cup
+%public
+
+%class SMPLLexer
+
+%type java_cup.runtime.Symbol
+
+%eofval{
+	return new Symbol(sym.EOF);
+%eofval}
+
+%eofclose	false
+
+%char
+%line
+
+%{
+    public int getChar() {
+	return yychar + 1;
+    }
+
+    public int getColumn() {
+    	return yycolumn + 1;
+    }
+
+    public int getLine() {
+	return yyline + 1;
+    }
+
+    public String getText() {
+	return yytext();
+    }
+%}
+
+nl = [\n\r]
+
+cc = ([\b\f]|{nl})
+
+ws = {cc}|[\t ]
+
+alpha = [a-zA-Z_]
+
+num = [0-9]
+
+alphanum = {alpha}|{num}
+
+%%

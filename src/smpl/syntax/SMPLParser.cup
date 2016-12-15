@@ -1,0 +1,45 @@
+package fnplot.syntax;
+
+import java_cup.runtime.*;
+import java.io.*;
+import java.util.*;
+import smpl.sys.SyntaxFnPlotException;
+import smpl.values.SMPLValue;
+
+/* Preliminaries to set up and use the scanner.  */
+parser code {:
+		FnPlotLexer lexer;
+
+		public SMPLParser(FnPlotLexer l) {
+		    // As of CUP v0.11, need to pass Lexer to superclass
+		    super(l);
+		    lexer = l;
+		}
+
+		public void report_error(String message, Object info) {
+		    System.err.println(message);
+		}
+
+		public void syntax_error(Symbol cur_token) {
+		    System.err.print("Line " + lexer.getLine() +
+				     " near char " + lexer.getChar() + ": ");
+		    report_error("Syntax error", cur_token);
+		    System.err.println ("Last token read is " +
+					 lexer.getText());
+		}
+	    :};
+
+init with {:
+	  :};
+
+scan with {:
+		try {
+		    return lexer.next_token();
+		} catch (java.io.IOException ioe) {
+                    String msg = "Line " + lexer.getLine() + ", pos " +
+				       lexer.getColumn() +
+				       ": Unrecognised token <" +
+				       lexer.getText() + ">";
+		    throw new SyntaxFnPlotException(msg, ioe);
+		}
+	  :};
