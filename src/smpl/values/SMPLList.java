@@ -6,6 +6,7 @@
 package smpl.values;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  *
@@ -13,8 +14,7 @@ import java.util.ArrayList;
  */
 public class SMPLList extends SMPLPair{
     
-    
-    SMPLPair node;
+    SMPLPair base;
     SMPLType type;
     
     public SMPLList(){
@@ -22,10 +22,19 @@ public class SMPLList extends SMPLPair{
     }
     
     public SMPLList(SMPLValue<?>...members){
-        
+        base = new SMPLPair();
+	linkList(base,members);
     }
-    
-    private void createList(SMPLValue<?>[] list){
-        
-    }
+	
+	private void linkList(SMPLPair node, SMPLValue<?>[] list){
+		SMPLPair next = new SMPLPair();
+		if(list.length==1){
+                    node.setCar(list[0]);
+                    node.setCdr(new SMPLList());
+		}else{
+                    node.setCar(list[0]);
+                    node.setCdr(next);
+                    linkList(next,Arrays.copyOfRange(list,1,list.length-1));
+		}		
+	}
 }

@@ -52,6 +52,126 @@ alpha = [a-zA-Z_]
 
 num = [0-9]
 
-alphanum = {alpha}|{num}
+hex = [0-9A-F]
+
+op = [+-/*^@]
+
+alphanum = {alpha}|{num}|{op}
 
 %%
+
+//Comments
+<YYINITIAL>	"//".{nl} {}
+<YYINITIAL>	"/*"[.{ws}]*"*/" {}
+<YYINITIAL>	{nl}	{
+                        //skip newline, but reset char counter
+			yycolumn = 0;
+			}
+
+//Arithmetic Operators
+<YYINITIAL>	{ws}"+"{ws}	{return new Symbol(sym.PLUS);}
+<YYINITIAL>	{ws}"-"{ws}	{return new Symbol(sym.MINUS);}
+<YYINITIAL>	{ws}"*"{ws}	{return new Symbol(sym.MUL);}
+<YYINITIAL>	{ws}"/"{ws}	{return new Symbol(sym.DIV);}
+<YYINITIAL>	{ws}"%"{ws}	{return new Symbol(sym.MOD);}
+<YYINITIAL>	{ws}"^"{ws}	{return new Symbol(sym.POW);}
+
+//Bitwise Operators
+<YYINITIAL>	{ws}"&"{ws}	{return new Symbol(sym.BITAND);}
+<YYINITIAL>	{ws}"|"{ws}	{return new Symbol(sym.BITOR);}
+<YYINITIAL>	{ws}"~"{ws}	{return new Symbol(sym.COMP);}
+
+//Relational Operators
+<YYINITIAL>	{ws}"="{ws}	{return new Symbol(sym.EQ);}
+<YYINITIAL>	{ws}">"{ws}	{return new Symbol(sym.GT);}
+<YYINITIAL>	{ws}"<"{ws}	{return new Symbol(sym.LT);}
+<YYINITIAL>	{ws}"<="{ws}	{return new Symbol(sym.LE);}
+<YYINITIAL>	{ws}">="{ws}	{return new Symbol(sym.GE);}
+<YYINITIAL>	{ws}"!="{ws}	{return new Symbol(sym.NEQ);}
+
+//Logical Operators
+<YYINITIAL>	{ws}"and"{ws}	{return new Symbol(sym.AND);}
+<YYINITIAL>	{ws}"or"{ws}	{return new Symbol(sym.OR);}
+<YYINITIAL>	{ws}"not"{ws}	{return new Symbol(sym.NOT);}
+
+//String Concatenation
+<YYINITIAL>	{ws}"@"{ws}	{return new Symbol(sym.CONCAT);}
+
+<YYINITIAL>	"("	{return new Symbol(sym.LPAREN);}
+<YYINITIAL>	")"	{return new Symbol(sym.RPAREN);}
+<YYINITIAL>	"{"	{return new Symbol(sym.LBRACE);}
+<YYINITIAL>	"}"	{return new Symbol(sym.RBRACE);}
+<YYINITIAL>	"["	{return new Symbol(sym.LBRACK);}
+<YYINITIAL>	"]"	{return new Symbol(sym.RBRACK);}
+
+<YYINITIAL>	","	{return new Symbol(sym.COMMA);}
+<YYINITIAL>	";" 	{return new Symbol(sym.SEMI);}
+<YYINITIAL>	":"	{return new Symbol(sym.COLON);}
+
+//Procedure keywords
+<YYINITIAL>	"proc"	{return new Symbol(sym.PROC);}
+<YYINITIAL>	"call"	{return new Symbol(sym.CALL);}
+<YYINITIAL>	"lazy"	{return new Symbol(sym.LAZY);}
+
+//Variable definition
+<YYINITIAL>	"def"	{return new Symbol(sym.DEF);}
+<YYINITIAL>	{ws}":="{ws}	{return new Symbol(sym.ASSIGN);}
+
+//Let keywird
+<YYINITIAL>	"let"	{return new Symbol(sym.LET);}
+
+//Control Structures
+<YYINITIAL>	"if"	{return new Symbol(sym.IF);}
+<YYINITIAL>	"then"	{return new Symbol(sym.THEN);}
+<YYINITIAL>	"else"	{return new Symbol(sym.ELSE);}
+<YYINITIAL>     "case"  {return new Symbol(sym.CASE);}
+
+//Query tag
+<YYINITIAL>     "?"  {return new Symbol(sym.QUERY);}
+
+//Compound Datatype keywords 
+<YYINITIAL>     "pair"  {return new Symbol(sym.PAIR);}
+<YYINITIAL>     "car"  {return new Symbol(sym.CAR);}
+<YYINITIAL>     "cdr"  {return new Symbol(sym.CDR);}
+<YYINITIAL>     "list"  {return new Symbol(sym.LIST);}
+<YYINITIAL>     "size"  {return new Symbol(sym.SIZE);}
+
+//Object comparison keywords
+<YYINITIAL>     "eqv"  {return new Symbol(sym.EQV);}
+<YYINITIAL>     "equal"  {return new Symbol(sym.EQL);}
+
+//String operation keywords
+<YYINITIAL>     "substr"  {return new Symbol(sym.SUBSTRING);}
+
+//Console Interaction keywords
+<YYINITIAL>	"print"	{return new Symbol(sym.PRINT);}
+<YYINITIAL>	"println"  {return new Symbol(sym.PRINTLN);}
+ 
+<YYINITIAL>	"read"	  {return new Symbol(sym.READ);}
+<YYINITIAL>	"readint" {return new Symbol(sym.READINT);}
+
+//Decimal, Hex & Binary integers
+<YYINITIAL>    [-]?{num}+ {return new Symbol(sym.INTEGER, new Integer(yytext()));}
+<YYINITIAL>    #x[-]?{hex}+ {return new Symbol(sym.INTEGER, Integer.parseInt(yytext(),16));}
+<YYINITIAL>    #b[-]?[0-1]+ {return new Symbol(sym.INTEGER, Integer.parseInt(yytext(),2));}
+
+//Floating Point Numbers
+<YYINITIAL>    [-]?{num}*\.{num}+ {return new Symbol(sym.REAL, new Double(yytext()));}
+<YYINITIAL>    [-]?{num}+\.{num}* {return new Symbol(sym.REAL, new Double(yytext()));}
+
+//Character Literals
+<YYINITIAL>    #c{alpha}    {return new Symbol(sym.CHAR, new Character(yytext().charAt(2)));}
+<YYINITIAL>    #u{hex}+   {return new Symbol(sym.CHAR, Character.toChars(Integer.parseInt(yytext().substring(2))));}	
+
+//String Literals
+<YYINITIAL>    \"[.{ws}]*\"    {return new Symbol(sym.STRING, yytext().substring(1,yytext().length()-2));}
+
+//Boolean literals
+<YYINITIAL>    #t   {return new Symbol(sym.BOOLEAN,new Boolean(true));}
+<YYINITIAL>    #f   {return new Symbol(sym.BOOLEAN,new Boolean(false));}
+
+//Empty List
+<YYINITIAL>    #e   {return new Symbol(sym.NIL);}
+
+//Variable
+<YYINITIAL>    {alpha}{alphanum}* {return new Symbol(sym.VARIABLE, yytext());}

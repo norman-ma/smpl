@@ -1,4 +1,4 @@
-package fnplot.syntax;
+package smpl.syntax;
 
 import java_cup.runtime.*;
 import java.io.*;
@@ -8,9 +8,9 @@ import smpl.values.SMPLValue;
 
 /* Preliminaries to set up and use the scanner.  */
 parser code {:
-		FnPlotLexer lexer;
+		SMPLLexer lexer;
 
-		public SMPLParser(FnPlotLexer l) {
+		public SMPLParser(SMPLLexer l) {
 		    // As of CUP v0.11, need to pass Lexer to superclass
 		    super(l);
 		    lexer = l;
