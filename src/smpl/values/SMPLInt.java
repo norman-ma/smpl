@@ -64,6 +64,26 @@ public class SMPLInt extends SMPLValue<SMPLReal>{
         }
     }
     
+    public SMPLValue<?> pow(SMPLValue<?> a) throws SMPLException{
+        if(a.isInteger()){
+            return make(Math.pow(value,a.intValue()));
+        }else{
+            return make(Math.pow(value,a.doubleValue()));
+        }
+    }
+    
+    public SMPLInt bitAnd(SMPLInt a) throws SMPLException{
+        return make(value & a.intValue());
+    }
+    
+    public SMPLInt bitOr(SMPLInt a) throws SMPLException{
+        return make(value | a.intValue());
+    }
+    
+    public SMPLInt comp() throws SMPLException{
+        return make(~value);
+    }
+    
     @Override
     public int intValue(){
         return value;

@@ -6,6 +6,7 @@
 package smpl.values;
 
 import java.util.*;
+import java.lang.Math;
 import smpl.sys.SMPLException;
 
 /**
@@ -34,6 +35,10 @@ public abstract class SMPLValue<T extends SMPLValue<T>> {
         return new SMPLCharacter(c);
     }
     
+    public static SMPLBoolean make(Boolean b){
+        return new SMPLBoolean(b);
+    }
+    
     public boolean isInteger(){
         return getType().equals(SMPLType.INTEGER);
     }
@@ -49,8 +54,8 @@ public abstract class SMPLValue<T extends SMPLValue<T>> {
     }
 
     
-    public SMPLFunction funValue() throws TypeSMPLException{
-        throw new TypeSMPLException(SMPLType.FUNCTION, getType());
+    public SMPLProcedure funValue() throws TypeSMPLException{
+        throw new TypeSMPLException(SMPLType.PROCEDURE, getType());
     }
     
 }

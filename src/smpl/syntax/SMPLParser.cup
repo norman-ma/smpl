@@ -3,7 +3,7 @@ package smpl.syntax;
 import java_cup.runtime.*;
 import java.io.*;
 import java.util.*;
-import smpl.sys.SyntaxFnPlotException;
+import smpl.sys.SyntaxSMPLException;
 import smpl.values.SMPLValue;
 
 /* Preliminaries to set up and use the scanner.  */
@@ -40,7 +40,7 @@ scan with {:
 				       lexer.getColumn() +
 				       ": Unrecognised token <" +
 				       lexer.getText() + ">";
-		    throw new SyntaxFnPlotException(msg, ioe);
+		    throw new SyntaxSMPLException(msg, ioe);
 		}
 	  :};
 
@@ -48,7 +48,7 @@ scan with {:
 
 // special symbols
 terminal LPAREN, RPAREN, LBRACK, RBRACK, LBRACE, RBRACE;
-terminal SEMI, COLON, COMMA;
+terminal SEMI, COLON, COMMA, DOT;
 
 // arithmetic operators
 terminal PLUS, MINUS, MUL, DIV, MOD, POW;
@@ -84,3 +84,129 @@ terminal String VARIABLE;
 terminal Character CHAR;
 terminal String STRING;
 terminal Boolean BOOLEAN;
+
+/* Non terminals */
+non terminal SMPLProgram program;
+non terminal StmtSequence stmtList;
+
+non terminal Statement stmt;
+non terminal StmtDefinition definition;
+
+non terminal StmtLet letExp;
+non terminal ArrayList<Binding> bindings;
+non terminal ArrayList<Binding> bindingsAux;
+non terminal Binding binding;
+
+non terminal Exp expression;    
+
+non terminal Exp comparison;
+
+non terminal Exp procedureDef;
+non terminsl ArrayList<String> params;
+non terminal ArrayList<String> paramsAux;
+
+non terminal Exp arithExp;
+non terminal Exp term;
+non terminal Exp factor;
+non terminal SMPLValue<?> number;
+
+non terminal empty;
+
+/* Grammar rules */
+
+program ::= stmtList:s {: RESULT = new SMPLProgram(s); :};
+
+stmtList ::=  stmtList:lst stmt:s {:
+		lst.add(s); 
+		RESULT = lst;
+		:} |
+	     stmt:s {:
+		RESULT = new StmtSequence(s);
+		:};
+
+stmt ::= definition:d {: RESULT = d; :} |
+         expression:e SEMI {: RESULT = e; :};
+
+definition ::= VARIABLE:v ASSIGN expression:e {:
+                RESULT = new StmtDefinition(v,e);
+            :} |
+            DEF VARIABLE:v expression:e{:
+                RESULT = new StmtDefinition(v,e);
+            :};
+
+expression ::=  letExp:l {: RESULT = l; :} |
+                LBRACE expression:e RBRACE {: RESULT = e; :};
+                arithExp:a {: RESULT = a; :} |
+                comparison:c {: RESULT = c; :};
+
+letExp ::= LET LPAREN bindings:bs RPAREN expression:body {:
+			RESULT = new StmtLet(bs, body);
+           :};
+
+binding ::= VARIABLE:v EQ expression:e {:
+		RESULT = new Binding(v, e);
+	    :};
+
+bindings ::= binding:b bindingsAux:bl {:
+		bl.add(0,b);
+		RESULT = bl;
+	     :} |
+		empty {: RESULT = new ArrayList(); :};
+
+bindingsAux ::= COMMA binding:b bindingsAux:bl {:
+		  bl.add(0,b);
+		  RESULT = bl;
+		:} |
+		empty {: RESULT = new ArrayList(); :};
+
+comparison ::= expression:a EQ expression:b {: new ExpEQ(a,b); :} |
+               expression:a LT expression:b {: new ExpLT(a,b); :} |
+               expression:a GT expression:b {: new ExpGT(a,b); :} |
+               expression:a LE expression:b {: new ExpLE(a,b); :} |
+               expression:a GE expression:b {: new ExpGE(a,b); :} |
+               expression:a NEQ expression:b {: new ExpNEQ(a,b); :};
+               
+procedureDef ::= PROC LPAREN params:p RPAREN expression:e{:
+                    RESULT = new ExpProcedure(p,e);
+                :} |
+                PROC VARIABLE:v expression:e {: :} |
+                PROC LPAREN params:p DOT params:p RPAREN expression:e {: :};
+
+params ::= VARIABLE:v paramAux:pl {:
+                    pl.add(v);
+                    RESULT = pl;
+                :} |
+                empty {: RESULT = new ArrayList(); :};
+
+paramsAux ::= COMMA VARIABLE:v paramAux:pl {:
+                    pl.add(v);
+                    RESULT = pl;
+                :} |
+                empty {: RESULT = new ArrayList(); :};
+
+arithExp ::= 	arithExp:e PLUS term:t {:
+			RESULT = new ExpAdd(e, t); :} |
+		arithExp:e MINUS term:t {:
+			RESULT = new ExpSub(e, t); :} |
+		term:t {: RESULT = t; :};
+
+term ::= term:t MUL factor:f {:
+		RESULT = new ExpMul(t, f); :} |
+	 term:t DIV factor:f {:
+		RESULT = new ExpDiv(t, f); :} |
+	 term:t MOD factor:f {:
+		RESULT = new ExpMod(t, f); :} |
+         term:t POW factor:f {: 
+                RESULT = new ExpPow(t, f); :} |
+	 factor:f {: RESULT = f; :};
+
+number ::= INTEGER:ilit {: RESULT = SMPLValue.make(ilit); :}|
+           REAL:ilit {: RESULT =  SMPLValue.make(ilit); :};
+
+factor ::= number:n {: RESULT = new ExpLit(n); :} |
+	   VARIABLE:var {: RESULT = new ExpVar(var); :} |
+	   LPAREN expression:e RPAREN {: RESULT = e; :}	;
+
+
+
+empty ::= ;

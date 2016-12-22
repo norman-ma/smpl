@@ -9,11 +9,11 @@ package smpl.values;
  *
  * @author namro_000
  */
-public class SMPLFunction extends SMPLValue<SMPLFunction>{
+public class SMPLProcedure extends SMPLValue<SMPLProcedure>{
 
     @Override
     public SMPLType getType() {
-        return SMPLType.FUNCTION;
+        return SMPLType.PROCEDURE;
     }
     
 }

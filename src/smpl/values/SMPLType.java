@@ -19,7 +19,7 @@ public enum SMPLType {
     SUBVECTOR("subvector"),
     PAIR("pair"),
     LIST("list"),
-    FUNCTION("user function");
+    PROCEDURE("user function");
     
     private final String docString;
     

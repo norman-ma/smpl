@@ -14,10 +14,10 @@ import java.util.ArrayList;
 public class SMPLSubVector extends SMPLVector{
     
     SMPLInt size;
-    SMPLFunction procedure;
+    SMPLProcedure procedure;
     SMPLValue<?>[] value;
     
-    public SMPLSubVector(SMPLInt s, SMPLFunction proc){
+    public SMPLSubVector(SMPLInt s, SMPLProcedure proc){
         size = s;
         procedure = proc;
     }    
@@ -30,7 +30,7 @@ public class SMPLSubVector extends SMPLVector{
         return size.intValue();
     }
     
-    public SMPLFunction getProcedues(){
+    public SMPLProcedure getProcedues(){
         return procedure;
     }
     

@@ -2,11 +2,10 @@ package smpl.sys;
 
 import smpl.semantics.Environment;
 import smpl.semantics.Evaluator;
-/*
-import smpl.syntax.ArithProgram;
-import smpl.syntax.FnPlotLexer;
-import smpl.syntax.FnPlotParser;
-*/
+import smpl.syntax.SMPLProgram;
+import smpl.syntax.SMPLLexer;
+import smpl.syntax.SMPLParser;
+
 import java.io.*;
 
 public class Repl {
@@ -26,14 +25,13 @@ public class Repl {
    
     public static void parseEvalShow(Reader reader,
 				     Environment env) {
-        /*
-	FnPlotParser parser;
-	ArithProgram program = null;
+        SMPLParser parser;
+	SMPLProgram program = null;
 	Evaluator interp = new Evaluator();
 	System.out.print(PROMPT);
 	try {
-	    parser = new FnPlotParser(new FnPlotLexer(reader));
-	    program = (ArithProgram) parser.parse().value;
+	    parser = new SMPLParser(new SMPLLexer(reader));
+	    program = (SMPLProgram) parser.parse().value;
 	} catch (Exception e) {
 	    System.out.println("Parse Error: " + e.getMessage());
 	}
@@ -46,6 +44,5 @@ public class Repl {
 	    } catch (SMPLException e) {
 		System.out.println(e.getMessage());
 	    }
-        */
     }
 }

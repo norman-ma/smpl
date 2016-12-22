@@ -107,6 +107,8 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>	","	{return new Symbol(sym.COMMA);}
 <YYINITIAL>	";" 	{return new Symbol(sym.SEMI);}
 <YYINITIAL>	":"	{return new Symbol(sym.COLON);}
+<YYINITIAL>	"."	{return new Symbol(sym.DOT);}
+
 
 //Procedure keywords
 <YYINITIAL>	"proc"	{return new Symbol(sym.PROC);}

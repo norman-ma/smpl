@@ -48,6 +48,10 @@ public class SMPLReal extends SMPLValue<SMPLReal>{
         return make(value%a.doubleValue());
     }
     
+    public SMPLReal pow(SMPLValue<?> a) throws SMPLException{
+        return make(Math.pow(value, a.doubleValue()));
+    }
+    
     @Override
     public int intValue(){
         return (int) value;
