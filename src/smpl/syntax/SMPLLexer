@@ -54,7 +54,7 @@ num = [0-9]
 
 hex = [0-9A-F]
 
-op = [+-/*^@]
+op = [+-/*\^@]
 
 alphanum = {alpha}|{num}|{op}
 
@@ -62,7 +62,7 @@ alphanum = {alpha}|{num}|{op}
 
 //Comments
 <YYINITIAL>	"//".{nl} {}
-<YYINITIAL>	"/*"[.{ws}]*"*/" {}
+<YYINITIAL>	"/*"[.]*"*/" {}
 <YYINITIAL>	{nl}	{
                         //skip newline, but reset char counter
 			yycolumn = 0;
@@ -164,7 +164,7 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>    #u{hex}+   {return new Symbol(sym.CHAR, Character.toChars(Integer.parseInt(yytext().substring(2))));}	
 
 //String Literals
-<YYINITIAL>    \"[.{ws}]*\"    {return new Symbol(sym.STRING, yytext().substring(1,yytext().length()-2));}
+<YYINITIAL>    \"[.]*\"    {return new Symbol(sym.STRING, yytext().substring(1,yytext().length()-2));}
 
 //Boolean literals
 <YYINITIAL>    #t   {return new Symbol(sym.BOOLEAN,new Boolean(true));}
@@ -174,4 +174,4 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>    #e   {return new Symbol(sym.NIL);}
 
 //Variable
-<YYINITIAL>    {alpha}{alphanum}* {return new Symbol(sym.VARIABLE, yytext());}
+<YYINITIAL>    ({alpha}|{num})({alphanum}|#)* {return new Symbol(sym.VARIABLE, yytext());}

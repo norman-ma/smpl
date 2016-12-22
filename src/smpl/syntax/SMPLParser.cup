@@ -43,3 +43,44 @@ scan with {:
 		    throw new SyntaxFnPlotException(msg, ioe);
 		}
 	  :};
+
+/* Terminals (tokens returned by the scanner). */
+
+// special symbols
+terminal LPAREN, RPAREN, LBRACK, RBRACK, LBRACE, RBRACE;
+terminal SEMI, COLON, COMMA;
+
+// arithmetic operators
+terminal PLUS, MINUS, MUL, DIV, MOD, POW;
+
+//bitwise operators
+terminal BITAND, BITOR, COMP;
+
+//Relational Operators
+terminal EQ, GT, LT, GE, LE, NEQ;
+
+//Logical operators
+terminal AND, OR, NOT;
+
+terminal CONCAT;
+
+//keywords
+terminal PROC, CALL, LAZY;
+terminal DEF, ASSIGN;
+terminal LET;
+terminal IF, THEN, ELSE, CASE;
+terminal QUERY;
+terminal PAIR, CAR, CDR, LIST, SIZE;
+terminal EQV, EQL;
+terminal SUBSTRING;
+terminal PRINT, PRINTLN, READ, READINT;
+
+terminal NIL;
+
+// terminals with values
+terminal Integer INTEGER;
+terminal Double REAL;
+terminal String VARIABLE;
+terminal Character CHAR;
+terminal String STRING;
+terminal Boolean BOOLEAN;

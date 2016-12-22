@@ -1,6 +1,21 @@
 package smpl.semantics;
 
 import java.util.*;
+import smpl.syntax.ExpAdd;
+import smpl.syntax.ExpApplyProc;
+import smpl.syntax.ExpDiv;
+import smpl.syntax.ExpLit;
+import smpl.syntax.ExpMod;
+import smpl.syntax.ExpMul;
+import smpl.syntax.ExpPow;
+import smpl.syntax.ExpProcedure;
+import smpl.syntax.ExpSub;
+import smpl.syntax.ExpVar;
+import smpl.syntax.SMPLProgram;
+import smpl.syntax.StmtDefinition;
+import smpl.syntax.StmtLet;
+import smpl.syntax.StmtSequence;
+import smpl.sys.SMPLException;
 import smpl.values.SMPLValue;
 
 public class Evaluator 
@@ -36,5 +51,75 @@ public class Evaluator
     public Environment<SMPLValue<?>> getGlobalEnv() {
         return globalEnv;
     }  
+
+    @Override
+    public SMPLValue<?> visitSMPLProgram(SMPLProgram p, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitStmtSequence(StmtSequence s, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitStmtDefinition(StmtDefinition s, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitExpAdd(ExpAdd exp, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitExpSub(ExpSub exp, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitExpMul(ExpMul exp, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitExpDiv(ExpDiv exp, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitExpMod(ExpMod exp, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitExpPow(ExpPow exp, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitExpProcedure(ExpProcedure exp, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitExpApplyProc(ExpApplyProc exp, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitExpVar(ExpVar exp, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitExpLit(ExpLit exp, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public SMPLValue<?> visitStmtLet(StmtLet s, Environment<SMPLValue<?>> arg) throws SMPLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

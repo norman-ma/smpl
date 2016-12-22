@@ -72,7 +72,7 @@
     -->
     <target depends="-pre-pre-compile" name="lex">
         <exec dir="C:\jflex-1.6.1\bin" executable="jflex.bat">
-            <arg file="${src.dir}/smpl/syntax/FnPlotLexer"/>
+            <arg file="${src.dir}/smpl/syntax/SMPLLexer"/>
         </exec>
     </target>
      
@@ -104,11 +104,11 @@
      
     <target depends="lex" name="cup">
         <java   jar="C:\java-cup-bin-11b-20160615\java-cup-11b.jar" 
-                input="${basedir}/${src.dir}/smpl/syntax/FnPlotParser.cup"
+                input="${basedir}/${src.dir}/smpl/syntax/SMPLParser.cup"
                 fork="true"
                 failonerror="true"     
         >    
-            <arg line= "-parser SMPLParser -destdir '${basedir}/${src.dir}/fnplot/syntax/'"
+            <arg line= "-parser SMPLParser -destdir '${basedir}/${src.dir}/smpl/syntax/'"
             />
              
          
@@ -120,8 +120,8 @@
     <target depends="cup" name="-pre-compile">
     </target>
     <target name="-post-clean">
-      <delete file="${src.dir}/smpl/syntax/FnPlotLexer.java"/>
-      <delete file="${src.dir}/smpl/syntax/FnPlotParser.java"/>
+      <delete file="${src.dir}/smpl/syntax/SMPLLexer.java"/>
+      <delete file="${src.dir}/smpl/syntax/SMPLParser.java"/>
     </target>     
      
 </project>

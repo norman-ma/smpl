@@ -5,7 +5,6 @@
  */
 package smpl.values;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
