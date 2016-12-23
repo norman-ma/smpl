@@ -11,6 +11,9 @@ import java.util.ArrayList;
 public class ExpProcedure extends Exp {
     
     ArrayList<String> parameters;
+    ArrayList<String> paramRest;
+    String  identifier;
+    
     Exp body;
 
     public ExpProcedure() {
@@ -21,10 +24,29 @@ public class ExpProcedure extends Exp {
         this.parameters = parameters;
         this.body = body;
     }
+    
+    public ExpProcedure(ArrayList<String> parameters, ArrayList<String> rest, Exp body) {
+        this.parameters = parameters;
+        this.paramRest = rest;
+        this.body = body;
+    }
+    
+    public ExpProcedure(String v, Exp body) {
+        this.identifier = v;
+        this.body = body;
+    }
 
     public ArrayList<String> getParameters() {
         return parameters;
-    }    
+    }
+
+    public ArrayList<String> getParameterRest() {
+        return paramRest;
+    }
+    
+    public String getIdentifier(){
+        return identifier;
+    }
 
     public Exp getBody() {
         return body;
@@ -49,7 +71,7 @@ public class ExpProcedure extends Exp {
                 }
         }
         
-        return "fun("+params+")->"+body.toString();
+        return "proc ("+params+") "+body.toString();
     }
 
 }

@@ -5,7 +5,6 @@ import smpl.semantics.Evaluator;
 import smpl.syntax.SMPLProgram;
 import smpl.syntax.SMPLLexer;
 import smpl.syntax.SMPLParser;
-
 import java.io.*;
 
 public class Repl {
@@ -22,10 +21,10 @@ public class Repl {
 	    parseEvalShow(reader, env);
 	}
     }
-   
+
     public static void parseEvalShow(Reader reader,
 				     Environment env) {
-        SMPLParser parser;
+	SMPLParser parser;
 	SMPLProgram program = null;
 	Evaluator interp = new Evaluator();
 	System.out.print(PROMPT);
@@ -45,4 +44,5 @@ public class Repl {
 		System.out.println(e.getMessage());
 	    }
     }
+
 }

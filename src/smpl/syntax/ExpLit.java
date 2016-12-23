@@ -24,6 +24,22 @@ public class ExpLit extends Exp {
         val = SMPLValue.make(v);
     }
 
+    public ExpLit(String v){
+        val = SMPLValue.make(v);
+    }
+    
+    public ExpLit(Character v){
+        val = SMPLValue.make(v);
+    }
+    
+    public ExpLit(Boolean v){
+        val = SMPLValue.make(v);
+    }
+    
+     public ExpLit(){
+        val = SMPLValue.make();
+    }
+    
     public SMPLValue<?> getVal() {
         return val;
     }

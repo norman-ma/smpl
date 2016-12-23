@@ -25,6 +25,7 @@ public class SMPLString extends SMPLValue<SMPLString>{
         return make(value.concat(s.toString()));
     }    
     
+    @Override
     public String stringValue(){
         return value;
     }

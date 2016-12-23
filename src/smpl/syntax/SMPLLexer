@@ -44,7 +44,7 @@ import java_cup.runtime.*;
 
 nl = [\n\r]
 
-cc = ([\b\f]|{nl})
+cc = [\b\f]
 
 ws = {cc}|[\t ]
 
@@ -63,39 +63,42 @@ alphanum = {alpha}|{num}|{op}
 //Comments
 <YYINITIAL>	"//".{nl} {}
 <YYINITIAL>	"/*"[.]*"*/" {}
+
+<YYINITIAL>     {ws}    {return new Symbol(sym.WS);}
+
 <YYINITIAL>	{nl}	{
                         //skip newline, but reset char counter
 			yycolumn = 0;
 			}
 
 //Arithmetic Operators
-<YYINITIAL>	{ws}"+"{ws}	{return new Symbol(sym.PLUS);}
-<YYINITIAL>	{ws}"-"{ws}	{return new Symbol(sym.MINUS);}
-<YYINITIAL>	{ws}"*"{ws}	{return new Symbol(sym.MUL);}
-<YYINITIAL>	{ws}"/"{ws}	{return new Symbol(sym.DIV);}
-<YYINITIAL>	{ws}"%"{ws}	{return new Symbol(sym.MOD);}
-<YYINITIAL>	{ws}"^"{ws}	{return new Symbol(sym.POW);}
+<YYINITIAL>	"+"	{return new Symbol(sym.PLUS);}
+<YYINITIAL>	"-"	{return new Symbol(sym.MINUS);}
+<YYINITIAL>	"*"	{return new Symbol(sym.MUL);}
+<YYINITIAL>	"/"	{return new Symbol(sym.DIV);}
+<YYINITIAL>	"%"	{return new Symbol(sym.MOD);}
+<YYINITIAL>	"^"	{return new Symbol(sym.POW);}
 
 //Bitwise Operators
-<YYINITIAL>	{ws}"&"{ws}	{return new Symbol(sym.BITAND);}
-<YYINITIAL>	{ws}"|"{ws}	{return new Symbol(sym.BITOR);}
-<YYINITIAL>	{ws}"~"{ws}	{return new Symbol(sym.COMP);}
+<YYINITIAL>	"&"	{return new Symbol(sym.BITAND);}
+<YYINITIAL>	"|"	{return new Symbol(sym.BITOR);}
+<YYINITIAL>	"~"	{return new Symbol(sym.COMP);}
 
 //Relational Operators
-<YYINITIAL>	{ws}"="{ws}	{return new Symbol(sym.EQ);}
-<YYINITIAL>	{ws}">"{ws}	{return new Symbol(sym.GT);}
-<YYINITIAL>	{ws}"<"{ws}	{return new Symbol(sym.LT);}
-<YYINITIAL>	{ws}"<="{ws}	{return new Symbol(sym.LE);}
-<YYINITIAL>	{ws}">="{ws}	{return new Symbol(sym.GE);}
-<YYINITIAL>	{ws}"!="{ws}	{return new Symbol(sym.NEQ);}
+<YYINITIAL>	"="     {return new Symbol(sym.EQ);}
+<YYINITIAL>	">"	{return new Symbol(sym.GT);}
+<YYINITIAL>	"<"	{return new Symbol(sym.LT);}
+<YYINITIAL>	"<="	{return new Symbol(sym.LE);}
+<YYINITIAL>	">="	{return new Symbol(sym.GE);}
+<YYINITIAL>	"!="	{return new Symbol(sym.NEQ);}
 
 //Logical Operators
-<YYINITIAL>	{ws}"and"{ws}	{return new Symbol(sym.AND);}
-<YYINITIAL>	{ws}"or"{ws}	{return new Symbol(sym.OR);}
-<YYINITIAL>	{ws}"not"{ws}	{return new Symbol(sym.NOT);}
+<YYINITIAL>	"and"	{return new Symbol(sym.AND);}
+<YYINITIAL>	"or"	{return new Symbol(sym.OR);}
+<YYINITIAL>	"not"	{return new Symbol(sym.NOT);}
 
 //String Concatenation
-<YYINITIAL>	{ws}"@"{ws}	{return new Symbol(sym.CONCAT);}
+<YYINITIAL>	"@"	{return new Symbol(sym.CONCAT);}
 
 <YYINITIAL>	"("	{return new Symbol(sym.LPAREN);}
 <YYINITIAL>	")"	{return new Symbol(sym.RPAREN);}
@@ -117,7 +120,7 @@ alphanum = {alpha}|{num}|{op}
 
 //Variable definition
 <YYINITIAL>	"def"	{return new Symbol(sym.DEF);}
-<YYINITIAL>	{ws}":="{ws}	{return new Symbol(sym.ASSIGN);}
+<YYINITIAL>	":="	{return new Symbol(sym.ASSIGN);}
 
 //Let keywird
 <YYINITIAL>	"let"	{return new Symbol(sym.LET);}

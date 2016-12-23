@@ -49,6 +49,7 @@ scan with {:
 // special symbols
 terminal LPAREN, RPAREN, LBRACK, RBRACK, LBRACE, RBRACE;
 terminal SEMI, COLON, COMMA, DOT;
+terminal WS;
 
 // arithmetic operators
 terminal PLUS, MINUS, MUL, DIV, MOD, POW;
@@ -73,6 +74,7 @@ terminal QUERY;
 terminal PAIR, CAR, CDR, LIST, SIZE;
 terminal EQV, EQL;
 terminal SUBSTRING;
+
 terminal PRINT, PRINTLN, READ, READINT;
 
 terminal NIL;
@@ -97,20 +99,57 @@ non terminal ArrayList<Binding> bindings;
 non terminal ArrayList<Binding> bindingsAux;
 non terminal Binding binding;
 
-non terminal Exp expression;    
+non terminal Exp expression;  
 
-non terminal Exp comparison;
+non terminal Exp makeLit;
 
-non terminal Exp procedureDef;
-non terminsl ArrayList<String> params;
+non terminal Exp concatenation;
+
+non terminal Exp builtInFn;
+non terminal Exp makeCompound;
+non terminal ArrayList<Exp> expList;
+non terminal ArrayList<Exp> expListAux;
+non terminal Specification specification;
+non terminal ArrayList<Specification> specList;
+non terminal ArrayList<Specification> specListAux;
+
+non terminal Exp lazyExp;
+
+non terminal ExpProcedure procedureDef;
+non terminal ArrayList<String> params;
 non terminal ArrayList<String> paramsAux;
 
+non terminal ExpApplyProc procedureApp;
+non terminal ArrayList<Exp> args;
+non terminal ArrayList<Exp> argsAux;
+
+non terminal Exp callExp;
+
+non terminal Exp ifExp;
+
+non terminal Exp multiExp;
+non terminal ArrayList<Exp> exps;
+
+non terminal Exp caseExp;
+non terminal Case case;
+non terminal ArrayList<Case> cases;
+non terminal ArrayList<Case> casesAux;
+
+non terminal Exp logicExp;
+non terminal Exp comparison;
+non terminal Exp bitExp;
 non terminal Exp arithExp;
 non terminal Exp term;
+non terminal Exp comp;
 non terminal Exp factor;
 non terminal SMPLValue<?> number;
 
+non terminal Statement printStmt;
+non terminal Exp readExp;
+
 non terminal empty;
+
+precedence left LPAREN,RPAREN,ELSE,WS,LBRACK,RBRACK,LBRACE,RBRACE,CONCAT,COLON;
 
 /* Grammar rules */
 
@@ -125,7 +164,8 @@ stmtList ::=  stmtList:lst stmt:s {:
 		:};
 
 stmt ::= definition:d {: RESULT = d; :} |
-         expression:e SEMI {: RESULT = e; :};
+         expression:e SEMI {: RESULT = e; :} |
+         printStmt:p {: RESULT = p; :};
 
 definition ::= VARIABLE:v ASSIGN expression:e {:
                 RESULT = new StmtDefinition(v,e);
@@ -135,13 +175,46 @@ definition ::= VARIABLE:v ASSIGN expression:e {:
             :};
 
 expression ::=  letExp:l {: RESULT = l; :} |
-                LBRACE expression:e RBRACE {: RESULT = e; :};
-                arithExp:a {: RESULT = a; :} |
-                comparison:c {: RESULT = c; :};
+                LBRACE expression:e RBRACE {: RESULT = e; :} |
+                logicExp:lx {: RESULT = lx; :} |
+                callExp:c {: RESULT = c; :} |
+                ifExp:i {: RESULT = i; :} |
+                multiExp:m {: RESULT = m; :} |
+                caseExp:c {: RESULT = c; :} |
+                makeLit:m {: RESULT = m; :} |
+                concatenation: cn {: RESULT = cn; :} |
+                builtInFn:b {:  RESULT = b; :};
+
+multiExp ::= LPAREN expression:e exps:el RPAREN{:
+                el.add(0,e);
+                RESULT = new ExpMult(el);
+            :};
+
+exps ::=  COMMA expression:e exps:el{:
+                el.add(0,e);
+                RESULT = el;
+            :} |
+            empty{: new ArrayList(); :};
+
+caseExp ::= CASE LBRACE cases:c RBRACE {: RESULT = new ExpCase(c); :};
+
+case ::= expression:a COLON expression:b {: RESULT = new Case(a,b); :};
+
+cases ::= case:c casesAux:cl {:
+            cl.add(0,c);
+            RESULT = cl;
+        :} |
+        empty {: RESULT = new ArrayList(); :};
+
+casesAux ::= COMMA case:c casesAux:cl{:
+            cl.add(0,c);
+            RESULT = cl;
+        :} |
+        empty {: RESULT = new ArrayList(); :};
 
 letExp ::= LET LPAREN bindings:bs RPAREN expression:body {:
 			RESULT = new StmtLet(bs, body);
-           :};
+           :};  
 
 binding ::= VARIABLE:v EQ expression:e {:
 		RESULT = new Binding(v, e);
@@ -158,31 +231,75 @@ bindingsAux ::= COMMA binding:b bindingsAux:bl {:
 		  RESULT = bl;
 		:} |
 		empty {: RESULT = new ArrayList(); :};
-
-comparison ::= expression:a EQ expression:b {: new ExpEQ(a,b); :} |
-               expression:a LT expression:b {: new ExpLT(a,b); :} |
-               expression:a GT expression:b {: new ExpGT(a,b); :} |
-               expression:a LE expression:b {: new ExpLE(a,b); :} |
-               expression:a GE expression:b {: new ExpGE(a,b); :} |
-               expression:a NEQ expression:b {: new ExpNEQ(a,b); :};
                
 procedureDef ::= PROC LPAREN params:p RPAREN expression:e{:
                     RESULT = new ExpProcedure(p,e);
                 :} |
-                PROC VARIABLE:v expression:e {: :} |
-                PROC LPAREN params:p DOT params:p RPAREN expression:e {: :};
+                PROC VARIABLE:v expression:e {:
+                    RESULT = new ExpProcedure(v,e); 
+                :} |
+                PROC LPAREN params:p DOT params:pr RPAREN expression:e {:
+                    RESULT = new ExpProcedure(p,pr,e); :};
 
-params ::= VARIABLE:v paramAux:pl {:
+params ::= VARIABLE:v paramsAux:pl {:
                     pl.add(v);
                     RESULT = pl;
                 :} |
                 empty {: RESULT = new ArrayList(); :};
 
-paramsAux ::= COMMA VARIABLE:v paramAux:pl {:
+paramsAux ::= COMMA VARIABLE:v paramsAux:pl {:
                     pl.add(v);
                     RESULT = pl;
                 :} |
                 empty {: RESULT = new ArrayList(); :};
+
+procedureApp ::= VARIABLE:v LPAREN args:ar RPAREN {:                    
+                    RESULT =  new ExpApplyProc(v,ar); 
+                :} |
+                LPAREN procedureDef:pd RPAREN LPAREN args:ar RPAREN{:
+                    RESULT = new ExpApplyProc(pd,ar);
+		:} |
+                procedureApp:pa LPAREN args:ar RPAREN{: 
+                    RESULT = new ExpApplyProc(pa,ar);
+                :};
+
+args ::= expression:e argsAux:al {:
+                    al.add(e);
+                    RESULT = al;
+                :} |
+                empty {: RESULT = new ArrayList(); :};
+
+argsAux ::= COMMA expression:e argsAux:al {:
+                    al.add(e);
+                    RESULT = al;
+                :} |
+                empty {: RESULT = new ArrayList(); :};
+
+callExp ::= CALL LPAREN expression:a COMMA expression:b RPAREN {:
+                    RESULT = new ExpCall(a,b);
+                :};
+
+ifExp ::= IF expression:i THEN expression:t{: RESULT = new ExpIf(i,t); :} |
+          IF expression:i THEN expression:t ELSE expression:e {: RESULT = new ExpIf(i,t,e); :};
+
+lazyExp ::= LAZY LPAREN expression:e RPAREN {: RESULT = new ExpLazy(e); :};
+
+logicExp ::=  logicExp:e NOT comparison:c {:  RESULT = new ExpNot(e,c); :} |
+              logicExp:e AND comparison:c {: RESULT = new ExpAnd(e,c); :} |
+              logicExp:e OR arithExp:c {:  RESULT = new ExpOr(e,c); :} |
+              comparison:c {: RESULT = c; :};
+
+comparison ::= comparison:c EQ bitExp:b {: new ExpEQ(c,b); :} |
+               comparison:c GT bitExp:b {: new ExpGT(c,b); :} |
+               comparison:c LT bitExp:b {: new ExpLT(c,b); :} |
+               comparison:c GE bitExp:b {: new ExpGE(c,b); :} |
+               comparison:c LE bitExp:b {: new ExpLE(c,b); :} |
+               comparison:c NEQ bitExp:b {: new ExpNEQ(c,b); :} |
+               bitExp:b {: RESULT = b; :};
+
+bitExp ::= bitExp:b BITAND arithExp:a {:  RESULT = new ExpBitAnd(b,a); :} |
+           bitExp:b BITOR arithExp:a {:  RESULT = new ExpBitOr(b,a); :} |
+           arithExp:a{: RESULT = a; :};
 
 arithExp ::= 	arithExp:e PLUS term:t {:
 			RESULT = new ExpAdd(e, t); :} |
@@ -190,22 +307,83 @@ arithExp ::= 	arithExp:e PLUS term:t {:
 			RESULT = new ExpSub(e, t); :} |
 		term:t {: RESULT = t; :};
 
-term ::= term:t MUL factor:f {:
-		RESULT = new ExpMul(t, f); :} |
-	 term:t DIV factor:f {:
-		RESULT = new ExpDiv(t, f); :} |
-	 term:t MOD factor:f {:
-		RESULT = new ExpMod(t, f); :} |
-         term:t POW factor:f {: 
-                RESULT = new ExpPow(t, f); :} |
-	 factor:f {: RESULT = f; :};
+term ::= term:t MUL comp:c {:
+		RESULT = new ExpMul(t, c); :} |
+	 term:t DIV comp:c {:
+		RESULT = new ExpDiv(t, c); :} |
+	 term:t MOD comp:c {:
+		RESULT = new ExpMod(t, c); :} |
+         term:t POW comp:c {: 
+                RESULT = new ExpPow(t, c); :} |
+	 comp:c {: RESULT = c; :};
+
+comp ::= COMP factor:f {::} |
+         factor:f{: RESULT = f; :};
 
 number ::= INTEGER:ilit {: RESULT = SMPLValue.make(ilit); :}|
            REAL:ilit {: RESULT =  SMPLValue.make(ilit); :};
 
 factor ::= number:n {: RESULT = new ExpLit(n); :} |
 	   VARIABLE:var {: RESULT = new ExpVar(var); :} |
-	   LPAREN expression:e RPAREN {: RESULT = e; :}	;
+	   LPAREN expression:e RPAREN {: RESULT = e; :}	|
+           procedureApp:a {: RESULT = a; :};
+
+makeLit ::= STRING:s {: RESULT = new ExpLit(s); :} |
+            CHAR: c {: RESULT = new ExpLit(c); :} |
+            NIL {: RESULT = new ExpLit(); :} |
+            BOOLEAN:b {: RESULT = new ExpLit(b); :} ;
+
+concatenation ::= expression:a CONCAT expression:b {: new ExpConcat(a,b); :};
+
+builtInFn ::= CAR LPAREN expression:e LPAREN {: RESULT = new ExpCar(e); :} |
+              CDR LPAREN expression:e LPAREN {: RESULT = new ExpCdr(e); :} |
+              PAIR QUERY LPAREN expression:e LPAREN {: RESULT = new ExpIsPair(e); :} |
+              EQV QUERY LPAREN expression:a COMMA expression:b RPAREN {: RESULT = new ExpIsEqv(a,b); :} |
+              EQL QUERY LPAREN expression:a COMMA expression:b RPAREN {: RESULT = new ExpIsEql(a,b); :} |
+              expression:e LBRACK expression:n RBRACK {: RESULT = new ExpGet(e,n); :} |
+              SIZE LPAREN expression:e RPAREN {: RESULT = new ExpSize(e); :} |
+              SUBSTRING LPAREN expression:a COMMA expression:b COMMA expression:c RPAREN {:
+                RESULT = new ExpSubstr(a,b,c); :} |
+              makeCompound: m {: RESULT = m; :};
+
+makeCompound ::= PAIR  LPAREN expression:a COMMA expression:b RPAREN {: RESULT = new ExpPair(a,b); :} |
+                 LIST LPAREN expList:l RPAREN {: RESULT = new ExpList(l); :} |
+                 LBRACK expList:l RBRACK {: RESULT = new ExpList(l); :} |
+                 LBRACK COLON specList:l COLON RBRACK {: RESULT = new ExpVector(l); :};
+
+expList ::= expression:e expListAux:el{:
+                el.add(0,e);
+                RESULT = el; :} |
+            empty {: RESULT = new ArrayList(); :};
+
+expListAux ::= COMMA expression:e expListAux:el{:
+                el.add(0,e);
+                RESULT = el; :} |
+            empty {: RESULT = new ArrayList(); :};
+
+specification ::= expression:n COLON expression:f {: RESULT = new Specification(n,f); :} |
+                  expression: e {: RESULT = new Specification(e); :};
+
+specList ::= specification:s specListAux:sl{:
+                sl.add(0,s);
+                RESULT = sl; :} |
+            empty {: RESULT = new ArrayList(); :};
+
+specListAux ::= COMMA specification:s specListAux:sl{:
+                sl.add(0,s);
+                RESULT = sl; :} |
+            empty {: RESULT = new ArrayList(); :};
+
+
+printStmt ::= PRINT LPAREN expression:e RPAREN SEMI {:
+                RESULT = new StmtPrint(e);
+              :} |
+              PRINTLN LPAREN expression:e RPAREN SEMI {:
+                RESULT = new StmtPrint(e,true);
+              :};
+
+readExp ::= READ LPAREN RPAREN {: RESULT = new ExpRead(); :} |
+            READINT LPAREN RPAREN {: RESULT = new ExpRead(true); :};
 
 
 

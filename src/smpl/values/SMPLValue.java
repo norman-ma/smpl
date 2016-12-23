@@ -39,10 +39,41 @@ public abstract class SMPLValue<T extends SMPLValue<T>> {
         return new SMPLBoolean(b);
     }
     
+    public static SMPLList make(){
+        return new SMPLList();
+    }
+    
     public boolean isInteger(){
         return getType().equals(SMPLType.INTEGER);
     }
     
+     public SMPLValue<?> add(SMPLValue<?> arg) throws SMPLException {
+        throw new TypeSMPLException("Operation div called with non-numeric type");
+    }
+
+   
+    public SMPLValue<?> sub(SMPLValue<?> arg) throws SMPLException {
+            throw new TypeSMPLException("Operation sub called with non-numeric type");
+    }
+
+   
+    public SMPLValue<?> mul(SMPLValue<?> arg) throws SMPLException {
+            throw new TypeSMPLException("Operation mul called with non-numeric type");
+    }
+
+    
+    public SMPLValue<?> div(SMPLValue<?> arg) throws SMPLException {
+            throw new TypeSMPLException("Operation div called with non-numeric type");
+    }
+    
+    
+    public SMPLValue<?> mod(SMPLValue<?> arg) throws SMPLException {
+            throw new TypeSMPLException("Operation mod called with non-numeric type");
+    }
+    
+    public SMPLValue<?> pow(SMPLValue<?> arg) throws SMPLException {
+            throw new TypeSMPLException("Operation mod called with non-numeric type");
+    }
     
     public int intValue() throws TypeSMPLException {
         throw new TypeSMPLException(SMPLType.INTEGER, getType());
@@ -52,10 +83,16 @@ public abstract class SMPLValue<T extends SMPLValue<T>> {
     public double doubleValue() throws TypeSMPLException {
         throw new TypeSMPLException(SMPLType.REAL, getType());
     }
-
     
-    public SMPLProcedure funValue() throws TypeSMPLException{
-        throw new TypeSMPLException(SMPLType.PROCEDURE, getType());
+    public String stringValue() throws TypeSMPLException{
+        throw new TypeSMPLException(SMPLType.STRING, getType());
     }
     
+    public char charValue() throws TypeSMPLException{
+        throw new TypeSMPLException(SMPLType.CHARACTER, getType());
+    }
+    
+    public boolean booleanValue() throws TypeSMPLException{
+        throw new TypeSMPLException(SMPLType.BOOLEAN, getType());
+    }
 }
