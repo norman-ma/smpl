@@ -20,20 +20,21 @@ public class SMPLList extends SMPLPair{
         type = SMPLType.EMPTYLIST;
     }
     
-    public SMPLList(SMPLValue<?>...members){
+    public SMPLList(SMPLValue<?>[] members){
         base = new SMPLPair();
 	linkList(base,members);
+    }	
+    
+    private void linkList(SMPLPair node, SMPLValue<?>[] list){
+	SMPLPair next = new SMPLPair();
+        System.out.println(list.length);
+	if(list.length==1){
+            node.setCar(list[0]);
+            node.setCdr(new SMPLList());
+	}else{
+            node.setCar(list[0]);
+            node.setCdr(next);
+            linkList(next,Arrays.copyOfRange(list,1,list.length));
+        }		
     }
-	
-	private void linkList(SMPLPair node, SMPLValue<?>[] list){
-		SMPLPair next = new SMPLPair();
-		if(list.length==1){
-                    node.setCar(list[0]);
-                    node.setCdr(new SMPLList());
-		}else{
-                    node.setCar(list[0]);
-                    node.setCdr(next);
-                    linkList(next,Arrays.copyOfRange(list,1,list.length-1));
-		}		
-	}
 }

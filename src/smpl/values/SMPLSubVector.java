@@ -11,38 +11,20 @@ import java.util.ArrayList;
  *
  * @author namro_000
  */
-public class SMPLSubVector extends SMPLVector{
+public class SMPLSubVector extends SMPLValue{    
     
-    SMPLInt size;
-    SMPLProcedure procedure;
-    SMPLValue<?>[] value;
+    SMPLValue<?>[] vals;    
     
-    public SMPLSubVector(SMPLInt s, SMPLProcedure proc){
-        size = s;
-        procedure = proc;
-    }    
-    
-    public SMPLValue<?>[] value(){
-        return value;
-    }
+    public SMPLSubVector(SMPLValue<?>[] v){
+        vals = v;
+    }     
     
     public int getSize(){
-        return size.intValue();
+        return vals.length;
     }
     
-    public SMPLProcedure getProcedues(){
-        return procedure;
-    }
-    
-    public void eval(){
-        ArrayList<SMPLValue<?>> temp = new ArrayList<>(); 
-        for(int i = 0; i<size();i++){
-            //unfinished... this is where evaluation on function would take place
-        }
-        value = new SMPLValue<?>[temp.size()];
-        for(int i = 0; i<temp.size();i++){
-            value[i] = temp.get(i);
-        }
+    public SMPLValue<?>[] getValues(){
+        return vals;
     }
     
     @Override

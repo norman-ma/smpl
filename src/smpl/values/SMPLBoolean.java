@@ -18,10 +18,16 @@ public class SMPLBoolean extends SMPLValue<SMPLBoolean>{
     }
     
     @Override
+    public boolean booleanValue(){
+        return value;
+    }
+    
+    @Override
     public SMPLType getType() {
         return SMPLType.BOOLEAN;
     }
     
+    @Override
     public String toString(){
         return String.valueOf(value);
     }

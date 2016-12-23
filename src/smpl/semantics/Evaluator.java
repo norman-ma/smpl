@@ -23,6 +23,8 @@ import smpl.sys.RuntimeSMPLException;
 import smpl.values.SMPLType;
 import java.awt.geom.Point2D;
 import java.util.*;
+import javax.swing.text.html.parser.DTDConstants;
+import smpl.syntax.Case;
 import smpl.syntax.ExpAnd;
 import smpl.syntax.ExpBitAnd;
 import smpl.syntax.ExpBitOr;
@@ -54,7 +56,14 @@ import smpl.syntax.ExpRead;
 import smpl.syntax.ExpSize;
 import smpl.syntax.ExpSubstr;
 import smpl.syntax.ExpVector;
+import smpl.syntax.Specification;
 import smpl.syntax.StmtPrint;
+import smpl.values.SMPLBoolean;
+import smpl.values.SMPLInt;
+import smpl.values.SMPLPair;
+import smpl.values.SMPLList;
+import smpl.values.SMPLString;
+import smpl.values.SMPLVector;
 
 public class Evaluator 
     implements Visitor<Environment<SMPLValue<?>>, SMPLValue<?>> {
@@ -161,7 +170,90 @@ public class Evaluator
     @Override
     public SMPLValue<?> visitExpApplyProc(ExpApplyProc exp, Environment<SMPLValue<?>> env)
         throws SMPLException{
-             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            SMPLProcedure fn;
+        
+       if(exp.getFunction() != null){
+            fn = (SMPLProcedure) exp.getFunction().visit(this,env);
+       }else if(exp.getVariable() != null){
+            String var = exp.getVariable();                           
+            if(env.get(var).getType().equals(SMPLType.PROCEDURE)){ 
+                fn = (SMPLProcedure) env.get(var);                  
+            } else{
+                throw new RuntimeSMPLException(env.get(var).getType()+"("+env.get(var)+") is not callable");
+            }           
+       } else{
+            ExpApplyProc fa = exp.getFunctionApplication();
+            
+            if(fa.visit(this, env).getType().equals(SMPLType.PROCEDURE)){
+                fn = (SMPLProcedure) fa.visit(this, env);                   
+            }else{
+                throw new RuntimeSMPLException(fa.visit(this, env).getType()+"("+fa.visit(this, env)+") is not callable");
+            }
+       }
+        
+        ExpProcedure proc= fn.getProcedure();
+        Environment<SMPLValue<?>> closingenv= fn.getClosingEnv();
+        
+        ArrayList<Exp> args = exp.getArguments();
+        int c;
+        String id;
+        
+        String[] vars;
+        SMPLValue<?>[] vals;
+        
+        if(proc.getParameters() == null){
+            id = proc.getIdentifier();
+            int n = args.size();
+            SMPLValue<?>[] a = new SMPLValue<?>[n];
+            
+            for(int i = 0; i<n; i++){
+                a[i] = args.get(i).visit(this, env);
+            }
+            
+            vars = new String[1];
+            vals = new SMPLValue<?>[1];
+            vars[0] = id;
+            vals[0] = SMPLValue.makeList(a);
+        }else{
+            ArrayList<String> params = proc.getParameters();
+            if(proc.getIdentifier() != null){
+                c = params.size();
+                id = proc.getIdentifier();
+                vars = new String[c+1];
+                vals = new SMPLValue<?>[c+1];
+                for(int i = 0; i <c; i++){
+                    vars[i] = params.get(i);
+                    vals[i] = args.get(i).visit(this, env);
+                }
+                
+                int n = args.size();
+                SMPLValue<?>[] a = new SMPLValue<?>[n];
+            
+                for(int i = c; i<n; i++){
+                    a[i] = args.get(i).visit(this, env);
+                }
+                
+                vars[c] = id;
+                vals[c] = SMPLValue.makeList(a);                
+            }else{
+                c = params.size();
+                vars = new String[c];
+                vals = new SMPLValue<?>[c];
+                for(int i = 0; i <c; i++){
+                    vars[i] = params.get(i);
+                    vals[i] = args.get(i).visit(this, env);
+                }
+            }
+        }        
+        
+	Exp body = proc.getBody();
+
+	Environment<SMPLValue<?>> newEnv = new Environment<> (vars, vals, closingenv);
+        if(exp.isNegative()){
+           return body.visit(this, newEnv).mul(SMPLValue.make(-1));
+        }else{
+            return body.visit(this, newEnv);
+        }	
     }
 
     @Override
@@ -263,57 +355,139 @@ public class Evaluator
 
     @Override
     public SMPLValue<?> visitExpEQ(ExpEQ s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SMPLValue<?> val1,val2;
+        
+        val1 = s.getExpL().visit(this, arg);
+        val2 = s.getExpR().visit(this, arg);
+        
+        return SMPLValue.make(val1.doubleValue() == val2.doubleValue());
     }
 
     @Override
     public SMPLValue<?> visitExpGE(ExpGE s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SMPLValue<?> val1,val2;
+        
+        val1 = s.getExpL().visit(this, arg);
+        val2 = s.getExpR().visit(this, arg);
+        
+        return SMPLValue.make(val1.doubleValue() >= val2.doubleValue());
     }
 
     @Override
     public SMPLValue<?> visitExpGT(ExpGT s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+         SMPLValue<?> val1,val2;
+        
+        val1 = s.getExpL().visit(this, arg);
+        val2 = s.getExpR().visit(this, arg);
+        
+        return SMPLValue.make(val1.doubleValue() > val2.doubleValue());
     }
 
     @Override
     public SMPLValue<?> visitExpLE(ExpLE s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+         SMPLValue<?> val1,val2;
+        
+        val1 = s.getExpL().visit(this, arg);
+        val2 = s.getExpR().visit(this, arg);
+        
+        return SMPLValue.make(val1.doubleValue() <= val2.doubleValue());
     }
 
     @Override
     public SMPLValue<?> visitExpLT(ExpLT s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+         SMPLValue<?> val1,val2;
+        
+        val1 = s.getExpL().visit(this, arg);
+        val2 = s.getExpR().visit(this, arg);
+        
+        return SMPLValue.make(val1.doubleValue() < val2.doubleValue());
     }
 
     @Override
     public SMPLValue<?> visitExpNEQ(ExpNEQ s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+         SMPLValue<?> val1,val2;
+        
+        val1 = s.getExpL().visit(this, arg);
+        val2 = s.getExpR().visit(this, arg);
+        
+        return SMPLValue.make(val1.doubleValue() != val2.doubleValue());
     }
 
     @Override
     public SMPLValue<?> visitExpMult(ExpMult s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        ArrayList<Exp> e = s.getExpressions();
+        int n = e.size();
+        
+        SMPLValue<?>[] a = new SMPLValue<?>[n];
+            
+        for(int i = 0; i<n; i++){
+            a[i] = e.get(i).visit(this, arg);
+        }
+        
+        return SMPLValue.makeList(a);          
     }
 
     @Override
     public SMPLValue<?> visitExpCase(ExpCase s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ArrayList<Case> cases = s.getCases();
+        
+        for(Case c: cases){
+            Exp pred = c.getPredicate();
+            Exp cons = c.getConsequent();
+            
+            if(pred.visit(this, arg).booleanValue()){
+                return cons.visit(this, arg);
+            }
+        }
+        
+        return null;
     }
 
     @Override
     public SMPLValue<?> visitStmtPrint(StmtPrint s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if(s.isLn()){
+            System.out.println(s.getExp().visit(this, arg));
+        } else{
+            System.out.print(s.getExp().visit(this, arg));
+        }
+        
+        return null;
     }
 
     @Override
     public SMPLValue<?> visitExpCall(ExpCall s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        SMPLProcedure proc = (SMPLProcedure)s.getProc().visit(this, arg);
+        SMPLList lst = (SMPLList)s.getArgExps().visit(this, arg);
+        
+        ArrayList<Exp> args = new ArrayList<>();
+        while(!lst.getType().equals(SMPLType.EMPTYLIST)){
+            args.add(new ExpLit(lst.getCar()));
+            lst = (SMPLList) lst.getCdr();
+        }
+        
+        return (new ExpApplyProc(proc.getProcedure(),args)).visit(this,arg);
     }
 
     @Override
     public SMPLValue<?> visitExpIf(ExpIf s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        SMPLBoolean pred = (SMPLBoolean) s.getExpIf().visit(this, arg);
+        Exp cons = s.getExpThen();
+        Exp alt = null;
+        
+        if(s.getExpElse() != null){
+            alt = s.getExpElse();
+        }
+        
+        if(pred.booleanValue()){
+            return cons.visit(this, arg);
+        }else if(alt != null){
+            return alt.visit(this, arg);
+        }
+        
+        return null;
     }
 
     @Override
@@ -328,42 +502,77 @@ public class Evaluator
 
     @Override
     public SMPLValue<?> visitExpNot(ExpNot s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        boolean val;
+	val = s.getExp().visit(this, arg).booleanValue();	
+	
+        return SMPLValue.make(!val);
     }
 
     @Override
     public SMPLValue<?> visitExpAnd(ExpAnd s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        boolean val1, val2;
+	val1 = s.getExpL().visit(this, arg).booleanValue();
+	val2 = s.getExpR().visit(this, arg).booleanValue();
+	
+        return SMPLValue.make(val1 && val2);
     }
 
     @Override
     public SMPLValue<?> visitExpOr(ExpOr s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        boolean val1, val2;
+	val1 = s.getExpL().visit(this, arg).booleanValue();
+	val2 = s.getExpR().visit(this, arg).booleanValue();
+	
+        return SMPLValue.make(val1 || val2);
     }
 
     @Override
     public SMPLValue<?> visitExpBitAnd(ExpBitAnd s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SMPLInt val1, val2;
+	val1 = (SMPLInt) s.getExpL().visit(this, arg);
+	val2 = (SMPLInt) s.getExpR().visit(this, arg);
+	if(s.isNegative()){
+            return val1.bitAnd(val2).mul(SMPLValue.make(-1));
+        }else{
+            return val1.bitAnd(val2);
+        }        
     }
 
     @Override
     public SMPLValue<?> visitExpBitOr(ExpBitOr s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SMPLInt val1, val2;
+	val1 = (SMPLInt) s.getExpL().visit(this, arg);
+	val2 = (SMPLInt) s.getExpR().visit(this, arg);
+	if(s.isNegative()){
+            return val1.bitOr(val2).mul(SMPLValue.make(-1));
+        }else{
+            return val1.bitOr(val2);
+        }        
     }
 
     @Override
     public SMPLValue<?> visitExpComp(ExpComp s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SMPLInt val;
+	val = (SMPLInt) s.getExp().visit(this, arg);
+	if(s.isNegative()){
+            return val.comp().mul(SMPLValue.make(-1));
+        }else{
+            return val.comp();
+        }        
     }
 
     @Override
     public SMPLValue<?> visitExpCar(ExpCar s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        SMPLPair val = (SMPLPair)s.getExp().visit(this, arg);        
+        return val.getCar();
     }
 
     @Override
     public SMPLValue<?> visitExpCdr(ExpCdr s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        SMPLPair val = (SMPLPair)s.getExp().visit(this, arg);        
+        return val.getCdr();
     }
 
     @Override
@@ -373,47 +582,117 @@ public class Evaluator
 
     @Override
     public SMPLValue<?> visitExpIsEqv(ExpIsEqv s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SMPLValue<?> val1, val2;
+        
+        val1 = s.getExpL().visit(this, arg);
+        val2 = s.getExpR().visit(this, arg);
+        
+        return SMPLValue.make(val1 == val2);
     }
 
     @Override
     public SMPLValue<?> visitExpIsPair(ExpIsPair s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SMPLValue<?> val = s.getExp().visit(this, arg);        
+        return SMPLValue.make(val.getType().equals(SMPLType.PAIR));
     }
 
     @Override
     public SMPLValue<?> visitExpList(ExpList s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ArrayList<Exp> items = s.getExpList();
+        int len = items.size();
+        SMPLValue<?>[] values = new SMPLValue<?>[len];
+        
+        for(int i = 0; i < len; i++){
+            values[i] = items.get(i).visit(this, arg);
+        }
+        
+        return SMPLValue.makeList(values);
     }
 
     @Override
     public SMPLValue<?> visitExpPair(ExpPair s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SMPLValue<?> val1, val2;
+	val1 = s.getExpL().visit(this, arg);
+	val2 = s.getExpR().visit(this, arg);
+        
+        return SMPLValue.makePair(val1,val2);
     }
 
     @Override
     public SMPLValue<?> visitExpSize(ExpSize s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        SMPLVector vec = (SMPLVector)s.visit(this, arg);
+        return SMPLValue.make(vec.size());
     }
 
     @Override
     public SMPLValue<?> visitExpSubstr(ExpSubstr s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        SMPLString val = (SMPLString)s.getStrExpression().visit(this, arg);
+        int hi = s.getHigh().visit(this, arg).intValue();
+        int lo = s.getLow().visit(this, arg).intValue();
+        
+        return val.substring(lo, hi);
     }
 
     @Override
     public SMPLValue<?> visitExpVector(ExpVector s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ArrayList<Specification> items = s.getExpList();
+        int len = items.size();
+        SMPLValue<?>[] values = new SMPLValue<?>[len];
+        
+        for(int i = 0; i < len; i++){
+            values[i] = items.get(i).visit(this,arg);
+        }
+        
+        return SMPLValue.makeList(values);
     }
 
     @Override
     public SMPLValue<?> visitExpConcat(ExpConcat s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SMPLString val1,val2;
+        
+        val1 = (SMPLString) s.getExpL().visit(this, arg);
+        val2 = (SMPLString) s.getExpR().visit(this, arg);
+        
+        return val1.concat(val2);
     }
 
     @Override
     public SMPLValue<?> visitExpGet(ExpGet s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        SMPLVector vec = (SMPLVector)s.getVector().visit(this, arg);
+        int index = s.getIndex().visit(this, arg).intValue();
+        
+        return vec.get(index);
     }
-    
+
+    public SMPLValue<?> visitSpecification(Specification s, Environment<SMPLValue<?>> arg) throws SMPLException {
+        Exp e = null;
+        int count;
+        SMPLProcedure proc = null;
+        
+        if(s.getExpression() != null){
+            e = s.getExpression();
+            return e.visit(this, arg);
+        }else{
+            count = s.getNumber().visit(this, arg).intValue();
+            proc = (SMPLProcedure) s.getProcedure().visit(this, arg);
+            ArrayList<SMPLValue> values = new ArrayList<>();
+            for(int i = 0; i < count; i++){
+                ArrayList<Exp> args = new ArrayList<>();
+                args.add(new ExpLit(SMPLValue.make(i)));
+                ExpApplyProc app = new ExpApplyProc(proc.getProcedure(), args);
+                values.add(app.visit(this, arg));
+            }
+            int n = values.size();
+            SMPLValue<?>[] vals = new SMPLValue<?>[n];
+            
+            for(int i = 0; i < n; i++){
+                vals[i] = values.get(i);
+            }
+            
+            return SMPLValue.makeSubVector(vals);
+        }        
+    }    
 }

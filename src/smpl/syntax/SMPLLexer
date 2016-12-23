@@ -64,7 +64,7 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>	"//".{nl} {}
 <YYINITIAL>	"/*"[.]*"*/" {}
 
-<YYINITIAL>     {ws}    {return new Symbol(sym.WS);}
+<YYINITIAL>     {ws}    {}
 
 <YYINITIAL>	{nl}	{
                         //skip newline, but reset char counter
@@ -72,25 +72,25 @@ alphanum = {alpha}|{num}|{op}
 			}
 
 //Arithmetic Operators
-<YYINITIAL>	"+"	{return new Symbol(sym.PLUS);}
-<YYINITIAL>	"-"	{return new Symbol(sym.MINUS);}
-<YYINITIAL>	"*"	{return new Symbol(sym.MUL);}
-<YYINITIAL>	"/"	{return new Symbol(sym.DIV);}
-<YYINITIAL>	"%"	{return new Symbol(sym.MOD);}
-<YYINITIAL>	"^"	{return new Symbol(sym.POW);}
+<YYINITIAL>	" + "	{return new Symbol(sym.PLUS);}
+<YYINITIAL>	" - "	{return new Symbol(sym.MINUS);}
+<YYINITIAL>	" * "	{return new Symbol(sym.MUL);}
+<YYINITIAL>	" / "	{return new Symbol(sym.DIV);}
+<YYINITIAL>	" % "	{return new Symbol(sym.MOD);}
+<YYINITIAL>	" ^ "	{return new Symbol(sym.POW);}
 
 //Bitwise Operators
-<YYINITIAL>	"&"	{return new Symbol(sym.BITAND);}
-<YYINITIAL>	"|"	{return new Symbol(sym.BITOR);}
-<YYINITIAL>	"~"	{return new Symbol(sym.COMP);}
+<YYINITIAL>	" & "	{return new Symbol(sym.BITAND);}
+<YYINITIAL>	" | "	{return new Symbol(sym.BITOR);}
+<YYINITIAL>	"~ "	{return new Symbol(sym.COMP);}
 
 //Relational Operators
-<YYINITIAL>	"="     {return new Symbol(sym.EQ);}
-<YYINITIAL>	">"	{return new Symbol(sym.GT);}
-<YYINITIAL>	"<"	{return new Symbol(sym.LT);}
-<YYINITIAL>	"<="	{return new Symbol(sym.LE);}
-<YYINITIAL>	">="	{return new Symbol(sym.GE);}
-<YYINITIAL>	"!="	{return new Symbol(sym.NEQ);}
+<YYINITIAL>	" = "     {return new Symbol(sym.EQ);}
+<YYINITIAL>	" > "	{return new Symbol(sym.GT);}
+<YYINITIAL>	" < "	{return new Symbol(sym.LT);}
+<YYINITIAL>	" <= "	{return new Symbol(sym.LE);}
+<YYINITIAL>	" >= "	{return new Symbol(sym.GE);}
+<YYINITIAL>	" != "	{return new Symbol(sym.NEQ);}
 
 //Logical Operators
 <YYINITIAL>	"and"	{return new Symbol(sym.AND);}
@@ -98,7 +98,7 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>	"not"	{return new Symbol(sym.NOT);}
 
 //String Concatenation
-<YYINITIAL>	"@"	{return new Symbol(sym.CONCAT);}
+<YYINITIAL>	" @ "	{return new Symbol(sym.CONCAT);}
 
 <YYINITIAL>	"("	{return new Symbol(sym.LPAREN);}
 <YYINITIAL>	")"	{return new Symbol(sym.RPAREN);}
@@ -120,7 +120,7 @@ alphanum = {alpha}|{num}|{op}
 
 //Variable definition
 <YYINITIAL>	"def"	{return new Symbol(sym.DEF);}
-<YYINITIAL>	":="	{return new Symbol(sym.ASSIGN);}
+<YYINITIAL>	" := "	{return new Symbol(sym.ASSIGN);}
 
 //Let keywird
 <YYINITIAL>	"let"	{return new Symbol(sym.LET);}
@@ -157,8 +157,8 @@ alphanum = {alpha}|{num}|{op}
 
 //Decimal, Hex & Binary integers
 <YYINITIAL>    [-]?{num}+ {return new Symbol(sym.INTEGER, new Integer(yytext()));}
-<YYINITIAL>    #x[-]?{hex}+ {return new Symbol(sym.INTEGER, Integer.parseInt(yytext(),16));}
-<YYINITIAL>    #b[-]?[0-1]+ {return new Symbol(sym.INTEGER, Integer.parseInt(yytext(),2));}
+<YYINITIAL>    #x{hex}+ {return new Symbol(sym.INTEGER, Integer.parseInt(yytext().substring(2),16));}
+<YYINITIAL>    #b[0-1]+ {return new Symbol(sym.INTEGER, Integer.parseInt(yytext().substring(2),2));}
 
 //Floating Point Numbers
 <YYINITIAL>    [-]?{num}*\.{num}+ {return new Symbol(sym.REAL, new Double(yytext()));}
@@ -169,7 +169,7 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>    #u{hex}+   {return new Symbol(sym.CHAR, Character.toChars(Integer.parseInt(yytext().substring(2))));}	
 
 //String Literals
-<YYINITIAL>    \"[.]*\"    {return new Symbol(sym.STRING, yytext().substring(1,yytext().length()-2));}
+<YYINITIAL>    \"(.[^\"]*)\"   {return new Symbol(sym.STRING, yytext().substring(1,yytext().length()-2));}
 
 //Boolean literals
 <YYINITIAL>    #t   {return new Symbol(sym.BOOLEAN,new Boolean(true));}

@@ -41,6 +41,7 @@ import smpl.syntax.ExpSubstr;
 import smpl.syntax.ExpVar;
 import smpl.syntax.ExpVector;
 import smpl.syntax.SMPLProgram;
+import smpl.syntax.Specification;
 import smpl.syntax.StmtDefinition;
 import smpl.syntax.StmtLet;
 import smpl.syntax.StmtPrint;
@@ -144,5 +145,7 @@ public interface Visitor<S, T> {
     public T visitExpConcat(ExpConcat s, S arg)throws SMPLException;
     
     public T visitExpGet(ExpGet s, S arg)throws SMPLException;
+
+    public T visitSpecification(Specification s, S arg)throws SMPLException;
     
 }

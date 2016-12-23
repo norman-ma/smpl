@@ -43,6 +43,22 @@ public abstract class SMPLValue<T extends SMPLValue<T>> {
         return new SMPLList();
     }
     
+    public static SMPLList makeList(SMPLValue<?>[] v){
+        return new SMPLList(v);
+    }
+    
+    public static SMPLPair makePair(SMPLValue<?> a, SMPLValue<?> b){
+        return new SMPLPair(a,b);
+    }
+    
+    public static SMPLVector makeVector(SMPLValue<?>[] v){
+        return new SMPLVector(v);
+    }
+    
+    public static SMPLSubVector makeSubVector(SMPLValue<?>[] v){
+        return new SMPLSubVector(v);
+    }
+    
     public boolean isInteger(){
         return getType().equals(SMPLType.INTEGER);
     }

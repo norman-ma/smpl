@@ -5,19 +5,14 @@ import smpl.sys.SMPLException;
 
 public class ExpNot extends Exp {
 
-    Exp exp1, exp2;
+    Exp exp;
 
-    public ExpNot(Exp e1, Exp e2) {
-        exp1 = e1;
-        exp2 = e2;
+    public ExpNot(Exp e) {
+        exp = e;
     }
 
-    public Exp getExpL() {
-        return exp1;
-    }
-
-    public Exp getExpR() {
-        return exp2;
+    public Exp getExp() {
+        return exp;
     }
 
     @Override
@@ -27,6 +22,6 @@ public class ExpNot extends Exp {
 
     @Override
     public String toString() {
-       return exp1.toString()+" not "+exp2.toString();
+       return "not "+exp.toString();
     }
 }

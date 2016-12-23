@@ -16,23 +16,19 @@ public class SMPLVector extends SMPLValue<SMPLVector>{
     SMPLValue<?>[] value;
     int len;
     
-    public SMPLVector(SMPLValue<?>...members){
+    public SMPLVector(SMPLValue<?>[] members){
         int i = members.length;
-        SMPLSubVector subv;
         ArrayList<SMPLValue<?>> temp = new ArrayList<>();
         for(int c = 0; c<i; c++){
-            if(members[c].getType().equals(SMPLType.SUBVECTOR)){
-               subv = (SMPLSubVector)members[c];
-               subv.eval();
-               for(SMPLValue<?> v:subv.value()){
-                   temp.add(v);
+           if (members[c].getType().equals(SMPLType.SUBVECTOR)){
+               SMPLValue<?>[] v = ((SMPLSubVector)members[c]).getValues();
+               for(SMPLValue<?> a: v){
+                   temp.add(a);
                }
-            }
-            else{
-                temp.add(members[c]);
-            }            
-        }
-        
+           }else{
+               temp.add(members[c]);
+           }
+        }        
         i = temp.size();
         value = new SMPLValue<?>[i];
         

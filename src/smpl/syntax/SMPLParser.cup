@@ -49,7 +49,7 @@ scan with {:
 // special symbols
 terminal LPAREN, RPAREN, LBRACK, RBRACK, LBRACE, RBRACE;
 terminal SEMI, COLON, COMMA, DOT;
-terminal WS;
+
 
 // arithmetic operators
 terminal PLUS, MINUS, MUL, DIV, MOD, POW;
@@ -149,7 +149,7 @@ non terminal Exp readExp;
 
 non terminal empty;
 
-precedence left LPAREN,RPAREN,ELSE,WS,LBRACK,RBRACK,LBRACE,RBRACE,CONCAT,COLON;
+precedence left LPAREN,RPAREN,ELSE,LBRACK,CONCAT,COLON;
 
 /* Grammar rules */
 
@@ -167,10 +167,10 @@ stmt ::= definition:d {: RESULT = d; :} |
          expression:e SEMI {: RESULT = e; :} |
          printStmt:p {: RESULT = p; :};
 
-definition ::= VARIABLE:v ASSIGN expression:e {:
+definition ::= VARIABLE:v ASSIGN expression:e SEMI {:
                 RESULT = new StmtDefinition(v,e);
             :} |
-            DEF VARIABLE:v expression:e{:
+            DEF VARIABLE:v expression:e SEMI{:
                 RESULT = new StmtDefinition(v,e);
             :};
 
@@ -183,7 +183,8 @@ expression ::=  letExp:l {: RESULT = l; :} |
                 caseExp:c {: RESULT = c; :} |
                 makeLit:m {: RESULT = m; :} |
                 concatenation: cn {: RESULT = cn; :} |
-                builtInFn:b {:  RESULT = b; :};
+                builtInFn:b {:  RESULT = b; :} |
+                readExp:r {: RESULT = r; :};
 
 multiExp ::= LPAREN expression:e exps:el RPAREN{:
                 el.add(0,e);
@@ -238,8 +239,8 @@ procedureDef ::= PROC LPAREN params:p RPAREN expression:e{:
                 PROC VARIABLE:v expression:e {:
                     RESULT = new ExpProcedure(v,e); 
                 :} |
-                PROC LPAREN params:p DOT params:pr RPAREN expression:e {:
-                    RESULT = new ExpProcedure(p,pr,e); :};
+                PROC LPAREN params:p DOT VARIABLE:v RPAREN expression:e {:
+                    RESULT = new ExpProcedure(p,v,e); :};
 
 params ::= VARIABLE:v paramsAux:pl {:
                     pl.add(v);
@@ -284,7 +285,7 @@ ifExp ::= IF expression:i THEN expression:t{: RESULT = new ExpIf(i,t); :} |
 
 lazyExp ::= LAZY LPAREN expression:e RPAREN {: RESULT = new ExpLazy(e); :};
 
-logicExp ::=  logicExp:e NOT comparison:c {:  RESULT = new ExpNot(e,c); :} |
+logicExp ::=  NOT comparison:c {:  RESULT = new ExpNot(c); :} |
               logicExp:e AND comparison:c {: RESULT = new ExpAnd(e,c); :} |
               logicExp:e OR arithExp:c {:  RESULT = new ExpOr(e,c); :} |
               comparison:c {: RESULT = c; :};
@@ -384,7 +385,5 @@ printStmt ::= PRINT LPAREN expression:e RPAREN SEMI {:
 
 readExp ::= READ LPAREN RPAREN {: RESULT = new ExpRead(); :} |
             READINT LPAREN RPAREN {: RESULT = new ExpRead(true); :};
-
-
 
 empty ::= ;
