@@ -63,7 +63,7 @@ public abstract class SMPLValue<T extends SMPLValue<T>> {
         return getType().equals(SMPLType.INTEGER);
     }
     
-     public SMPLValue<?> add(SMPLValue<?> arg) throws SMPLException {
+    public SMPLValue<?> add(SMPLValue<?> arg) throws SMPLException {
         throw new TypeSMPLException("Operation div called with non-numeric type");
     }
 
@@ -88,8 +88,12 @@ public abstract class SMPLValue<T extends SMPLValue<T>> {
     }
     
     public SMPLValue<?> pow(SMPLValue<?> arg) throws SMPLException {
-            throw new TypeSMPLException("Operation mod called with non-numeric type");
+            throw new TypeSMPLException("Operation pow called with non-numeric type");
     }
+    
+   public int compareTo(SMPLValue<?> arg) throws SMPLException {
+            throw new TypeSMPLException("Operation mod called with non-numeric type");
+   }
     
     public int intValue() throws TypeSMPLException {
         throw new TypeSMPLException(SMPLType.INTEGER, getType());

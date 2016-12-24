@@ -35,4 +35,7 @@ public class SMPLProcedure extends SMPLValue<SMPLProcedure>{
         return SMPLType.PROCEDURE;
     }
     
+    public String toString(){
+        return procedure.toString();
+    }
 }

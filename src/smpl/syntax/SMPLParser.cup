@@ -175,7 +175,7 @@ definition ::= VARIABLE:v ASSIGN expression:e SEMI {:
             :};
 
 expression ::=  letExp:l {: RESULT = l; :} |
-                LBRACE expression:e RBRACE {: RESULT = e; :} |
+                LBRACE stmtList:s RBRACE {: RESULT = s; :} |
                 logicExp:lx {: RESULT = lx; :} |
                 callExp:c {: RESULT = c; :} |
                 ifExp:i {: RESULT = i; :} |
@@ -183,6 +183,7 @@ expression ::=  letExp:l {: RESULT = l; :} |
                 caseExp:c {: RESULT = c; :} |
                 makeLit:m {: RESULT = m; :} |
                 concatenation: cn {: RESULT = cn; :} |
+                procedureDef : pd {: RESULT = pd; :} |
                 builtInFn:b {:  RESULT = b; :} |
                 readExp:r {: RESULT = r; :};
 
@@ -336,9 +337,9 @@ makeLit ::= STRING:s {: RESULT = new ExpLit(s); :} |
 
 concatenation ::= expression:a CONCAT expression:b {: new ExpConcat(a,b); :};
 
-builtInFn ::= CAR LPAREN expression:e LPAREN {: RESULT = new ExpCar(e); :} |
-              CDR LPAREN expression:e LPAREN {: RESULT = new ExpCdr(e); :} |
-              PAIR QUERY LPAREN expression:e LPAREN {: RESULT = new ExpIsPair(e); :} |
+builtInFn ::= CAR LPAREN expression:e RPAREN {: RESULT = new ExpCar(e); :} |
+              CDR LPAREN expression:e RPAREN {: RESULT = new ExpCdr(e); :} |
+              PAIR QUERY LPAREN expression:e RPAREN {: RESULT = new ExpIsPair(e); :} |
               EQV QUERY LPAREN expression:a COMMA expression:b RPAREN {: RESULT = new ExpIsEqv(a,b); :} |
               EQL QUERY LPAREN expression:a COMMA expression:b RPAREN {: RESULT = new ExpIsEql(a,b); :} |
               expression:e LBRACK expression:n RBRACK {: RESULT = new ExpGet(e,n); :} |

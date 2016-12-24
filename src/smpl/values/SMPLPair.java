@@ -5,6 +5,8 @@
  */
 package smpl.values;
 
+import smpl.sys.SMPLException;
+
 /**
  *
  * @author namro_000
@@ -36,6 +38,21 @@ public class SMPLPair extends SMPLValue<SMPLPair>{
         cdr = a;
     }
     
+    public int compareTo(SMPLValue<?> a) throws SMPLException{
+        if(a.getType().equals(SMPLType.PAIR)){
+            SMPLValue<?> x,y;
+            x = ((SMPLPair)a).getCar();
+            y = ((SMPLPair)a).getCdr();
+            
+            if(car.compareTo(x) == 0 && cdr.compareTo(y) == 0){
+                return 0;
+            }else{
+                return -1;
+            }            
+        }else{
+            return -1;
+        }
+    }
     
     @Override
     public SMPLType getType() {

@@ -21,8 +21,8 @@ public class SMPLString extends SMPLValue<SMPLString>{
         return make(value.substring(start, stop));
     }
     
-    public SMPLString concat(SMPLValue<?> s){
-        return make(value.concat(s.toString()));
+    public SMPLString concat(SMPLValue<?> s) throws TypeSMPLException {
+        return make( value.concat( s.stringValue()) );
     }    
     
     @Override

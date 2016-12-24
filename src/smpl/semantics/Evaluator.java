@@ -389,7 +389,7 @@ public class Evaluator
         
         val1 = s.getExpL().visit(this, arg);
         val2 = s.getExpR().visit(this, arg);
-        
+        System.out.println(val1.stringValue()+" "+val2.stringValue());
         return SMPLValue.make(val1.doubleValue() <= val2.doubleValue());
     }
 

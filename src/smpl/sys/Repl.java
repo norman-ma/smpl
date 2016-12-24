@@ -9,17 +9,33 @@ import java.io.*;
 
 public class Repl {
 
-    public static final String PROMPT = "Eval>";
+    public static final String PROMPT = "\nEval>";
 
     public static void main(String args[]) {
 	repl(new Environment());
     }
 
     public static void repl(Environment env){
-	InputStreamReader reader = new InputStreamReader(System.in);
-	while (true) {
-	    parseEvalShow(reader, env);
-	}
+        /*try{
+            BufferedReader br = new BufferedReader(new FileReader("D:\\Documents\\UWI\\Level3\\COMP3652\\Assignments\\Project\\smplTest.txt"));
+            try {
+                StringBuilder sb = new StringBuilder();
+                String line = br.readLine();
+
+                while (line != null) {
+                sb.append(line);
+                sb.append(System.lineSeparator());
+                line = br.readLine();
+            }
+            String everything = sb.toString();
+            } finally {
+                br.close();
+            }*/
+            InputStreamReader reader = new InputStreamReader(System.in);
+            //while (true) {
+                parseEvalShow(reader, env);
+            //}
+
     }
 
     public static void parseEvalShow(Reader reader,

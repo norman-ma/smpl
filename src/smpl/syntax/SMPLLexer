@@ -52,7 +52,7 @@ alpha = [a-zA-Z_]
 
 num = [0-9]
 
-hex = [0-9A-F]
+hex = [0-9A-Fa-f]
 
 op = [+-/*\^@]
 
@@ -61,8 +61,10 @@ alphanum = {alpha}|{num}|{op}
 %%
 
 //Comments
-<YYINITIAL>	"//".{nl} {}
-<YYINITIAL>	"/*"[.]*"*/" {}
+<YYINITIAL>    "//".* {
+	             // skip single line comments (beginning with ;)
+	            }
+<YYINITIAL>	"/*" [^*] ~"*/" | "/*" "*"+"/" {}
 
 <YYINITIAL>     {ws}    {}
 
@@ -165,12 +167,12 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>    [-]?{num}+\.{num}* {return new Symbol(sym.REAL, new Double(yytext()));}
 
 //Character Literals
-<YYINITIAL>    #c{alpha}    {return new Symbol(sym.CHAR, new Character(yytext().charAt(2)));}
+<YYINITIAL>    #c.    {return new Symbol(sym.CHAR, new Character(yytext().charAt(2)));}
 <YYINITIAL>    #u{hex}+   {return new Symbol(sym.CHAR, Character.toChars(Integer.parseInt(yytext().substring(2))));}	
 
 //String Literals
-<YYINITIAL>    \"(.[^\"]*)\"   {return new Symbol(sym.STRING, yytext().substring(1,yytext().length()-2));}
-
+<YYINITIAL>    \"(.[^\"]*)\"   {return new Symbol(sym.STRING, yytext().substring(1,yytext().length()-1));}
+    
 //Boolean literals
 <YYINITIAL>    #t   {return new Symbol(sym.BOOLEAN,new Boolean(true));}
 <YYINITIAL>    #f   {return new Symbol(sym.BOOLEAN,new Boolean(false));}

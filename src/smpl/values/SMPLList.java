@@ -23,11 +23,11 @@ public class SMPLList extends SMPLPair{
     public SMPLList(SMPLValue<?>[] members){
         base = new SMPLPair();
 	linkList(base,members);
+        type = SMPLType.PAIR;
     }	
     
     private void linkList(SMPLPair node, SMPLValue<?>[] list){
 	SMPLPair next = new SMPLPair();
-        System.out.println(list.length);
 	if(list.length==1){
             node.setCar(list[0]);
             node.setCdr(new SMPLList());
@@ -36,5 +36,13 @@ public class SMPLList extends SMPLPair{
             node.setCdr(next);
             linkList(next,Arrays.copyOfRange(list,1,list.length));
         }		
+    }
+    
+    public String toString(){
+        if(type.equals(SMPLType.EMPTYLIST)){
+            return "nil";
+        }else{
+            return base.toString();
+        }
     }
 }

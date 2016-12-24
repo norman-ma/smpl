@@ -5,6 +5,8 @@
  */
 package smpl.values;
 
+import smpl.sys.SMPLException;
+
 /**
  *
  * @author namro_000
@@ -20,6 +22,24 @@ public class SMPLCharacter extends SMPLValue<SMPLCharacter>{
     @Override
     public SMPLType getType() {
         return SMPLType.CHARACTER;
+    }
+    
+    public char charValue(){
+        return value;
+    }
+    
+    public int compareTo(SMPLValue<?> a) throws SMPLException{
+        if(a.getType().equals(getType())){
+            char x = a.charValue();
+            
+            if(value == x){
+                return 0;
+            }else{
+                return -1;
+            }
+        }else{
+            return -1;
+        }
     }
 
     @Override
