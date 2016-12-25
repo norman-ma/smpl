@@ -52,6 +52,28 @@ public class SMPLReal extends SMPLValue<SMPLReal>{
         return make(Math.pow(value, a.doubleValue()));
     }
     
+    public int compareTo(SMPLValue<?> a) throws SMPLException{
+        if(a.isInteger()){
+            if(value < a.intValue()){
+                return -1;
+            }else if (value > a.intValue()){
+                return 1;
+            }else{
+                return 0;
+            }
+        }else if(a.getType().equals(SMPLType.REAL)){
+            if(value < a.doubleValue()){
+                return -1;
+            }else if (value > a.doubleValue()){
+                return 1;
+            }else{
+                return 0;
+            }
+        }else{
+            throw new TypeSMPLException("Compare operation called with non-numeric type");
+        }
+    }
+    
     @Override
     public int intValue(){
         return (int) value;

@@ -6,6 +6,7 @@
 package smpl.values;
 
 import java.util.ArrayList;
+import smpl.sys.SMPLException;
 
 /**
  *
@@ -50,9 +51,33 @@ public class SMPLVector extends SMPLValue<SMPLVector>{
     public SMPLType getType() {
         return SMPLType.VECTOR;
     }
-
-    @Override
     
+    @Override
+    public int compareTo(SMPLValue<?> a) throws SMPLException{
+        if(a.getType().equals(getType())){
+            int l = ((SMPLVector) a).size();
+            
+            if(l == len){
+                for(int i = 0; i < len; i++){
+                    SMPLValue<?> x,y;
+                    x = get(i);
+                    y = ((SMPLVector) a).get(i);
+                    if(x.compareTo(y)==0){}
+                    else{
+                        return -1;
+                    }
+                    return 0;
+                }
+            }else{
+                return -1;
+            }
+        }else{
+            return -1;
+        }
+        return -1;
+    }
+
+    @Override    
     public String toString(){
         String items;       
         switch (len) {

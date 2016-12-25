@@ -159,8 +159,8 @@ alphanum = {alpha}|{num}|{op}
 
 //Decimal, Hex & Binary integers
 <YYINITIAL>    [-]?{num}+ {return new Symbol(sym.INTEGER, new Integer(yytext()));}
-<YYINITIAL>    #x{hex}+ {return new Symbol(sym.INTEGER, Integer.parseInt(yytext().substring(2),16));}
-<YYINITIAL>    #b[0-1]+ {return new Symbol(sym.INTEGER, Integer.parseInt(yytext().substring(2),2));}
+<YYINITIAL>    #x{hex}+ {return new Symbol(sym.HEX, Integer.parseInt(yytext().substring(2),16));}
+<YYINITIAL>    #b[0-1]+ {return new Symbol(sym.BIN, Integer.parseInt(yytext().substring(2),2));}
 
 //Floating Point Numbers
 <YYINITIAL>    [-]?{num}*\.{num}+ {return new Symbol(sym.REAL, new Double(yytext()));}
@@ -171,7 +171,8 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>    #u{hex}+   {return new Symbol(sym.CHAR, Character.toChars(Integer.parseInt(yytext().substring(2))));}	
 
 //String Literals
-<YYINITIAL>    \"(.[^\"]*)\"   {return new Symbol(sym.STRING, yytext().substring(1,yytext().length()-1));}
+<YYINITIAL>    \"(.[^\"]*)\"  {return new Symbol(sym.STRING, yytext().substring(1,yytext().length()-1));}
+<YYINITIAL>     \"\"          {return new Symbol(sym.STRING,"");}
     
 //Boolean literals
 <YYINITIAL>    #t   {return new Symbol(sym.BOOLEAN,new Boolean(true));}

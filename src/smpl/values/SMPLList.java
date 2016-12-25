@@ -6,6 +6,7 @@
 package smpl.values;
 
 import java.util.Arrays;
+import smpl.sys.SMPLException;
 
 /**
  *
@@ -22,12 +23,17 @@ public class SMPLList extends SMPLPair{
     
     public SMPLList(SMPLValue<?>[] members){
         base = new SMPLPair();
-	linkList(base,members);
+	linkList(this,members);
         type = SMPLType.PAIR;
     }	
     
-    private void linkList(SMPLPair node, SMPLValue<?>[] list){
-	SMPLPair next = new SMPLPair();
+    private SMPLList(SMPLPair p){
+        base = p;
+        type = SMPLType.PAIR;
+    }
+    
+    private void linkList(SMPLList node, SMPLValue<?>[] list){
+	SMPLList next = new SMPLList(new SMPLPair());
 	if(list.length==1){
             node.setCar(list[0]);
             node.setCdr(new SMPLList());
@@ -38,6 +44,45 @@ public class SMPLList extends SMPLPair{
         }		
     }
     
+    @Override
+    public int compareTo(SMPLValue<?> a)throws SMPLException{
+        if(getType().equals(SMPLType.EMPTYLIST)){
+            if(a.getType().equals(getType())){
+                return 0;
+            }else{
+                return -1;
+            }
+        }else{
+            return base.compareTo(a);
+        }
+    }
+    
+    @Override
+    public SMPLValue<?> getCar(){
+        return base.getCar();
+    }
+    
+    @Override
+    public SMPLValue<?> getCdr(){
+        return base.getCdr();
+    }
+    
+    @Override
+    public void setCar(SMPLValue<?> v){
+        base.setCar(v);
+    }
+    
+    @Override
+    public void setCdr(SMPLValue<?> v){
+        base.setCdr(v);
+    }
+    
+    @Override
+    public SMPLType getType(){
+        return type;
+    }
+    
+    @Override
     public String toString(){
         if(type.equals(SMPLType.EMPTYLIST)){
             return "nil";

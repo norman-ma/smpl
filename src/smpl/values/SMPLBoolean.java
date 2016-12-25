@@ -5,6 +5,8 @@
  */
 package smpl.values;
 
+import smpl.sys.SMPLException;
+
 /**
  *
  * @author namro_000
@@ -25,6 +27,19 @@ public class SMPLBoolean extends SMPLValue<SMPLBoolean>{
     @Override
     public SMPLType getType() {
         return SMPLType.BOOLEAN;
+    }
+    
+    public int compareTo(SMPLValue<?> a)throws SMPLException{
+        if(a.getType().equals(getType())){
+            boolean x = a.booleanValue();
+            if(value == x){
+                return 0;                
+            }else{
+                return -1;
+            }
+        }else{
+            return -1;
+        }
     }
     
     @Override

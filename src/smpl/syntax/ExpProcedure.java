@@ -55,18 +55,26 @@ public class ExpProcedure extends Exp {
     @Override
     public String toString() {
         String params;
-        int n = parameters.size();
-        switch (n) {
-            case 0: params = ""; break;
-            case 1: params = parameters.get(0); break;
-            default: 
-                params = parameters.get(0);
-                for (int i = 1; i < n; i++) {
-                    params += ", " + parameters.get(i);
-                }
-        }
         
-        return "proc ("+params+") "+body.toString();
+        if(parameters == null){
+            return "proc "+identifier+" "+body.toString();
+        }else{
+            int n = parameters.size();
+            switch (n) {
+                case 0: params = ""; break;
+                case 1: params = parameters.get(0); break;
+                default: 
+                    params = parameters.get(0);
+                    for (int i = 1; i < n; i++) {
+                        params += ", " + parameters.get(i);
+                    }
+            }
+            if(identifier == null){
+                return "proc ("+params+") "+body.toString();
+            } else {
+                return "proc ("+params+" . "+ identifier +") "+ body.toString();
+            }
+        }
     }
 
 }

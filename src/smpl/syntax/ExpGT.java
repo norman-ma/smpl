@@ -36,11 +36,7 @@ public class ExpGT extends Exp {
 
     @Override
     public String toString() {	
-        if(isNegative()){
-            return "-("+exp1.toString() + " > " + exp2.toString()+")";
-        }else{
-            return exp1.toString() + " > " + exp2.toString();
-        }
+        return String.format("%s > %s", exp1.toString(), exp2.toString());
     }
 }
 

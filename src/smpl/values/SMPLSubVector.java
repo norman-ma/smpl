@@ -6,6 +6,7 @@
 package smpl.values;
 
 import java.util.ArrayList;
+import smpl.sys.SMPLException;
 
 /**
  *
@@ -30,6 +31,19 @@ public class SMPLSubVector extends SMPLValue{
     @Override
     public SMPLType getType(){
         return SMPLType.SUBVECTOR;
+    }
+
+    @Override
+    public int compareTo(SMPLValue arg) throws SMPLException {
+        if(arg.getType().equals(getType())){
+            if(vals == ((SMPLSubVector)arg).getValues()){
+                return 0;
+            }else{
+                return -1;
+            }
+        }else{
+            return -1;
+        }
     }
     
 }

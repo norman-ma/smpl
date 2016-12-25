@@ -16,8 +16,8 @@ public class ExpLit extends Exp {
         val = v;
     }
 
-    public ExpLit(Integer v) {
-        val = SMPLValue.make(v);
+    public ExpLit(Integer v, int i) {
+        val = SMPLValue.make(v,i);
     }
     
     public ExpLit(Double v) {

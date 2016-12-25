@@ -15,26 +15,11 @@ public class Repl {
 	repl(new Environment());
     }
 
-    public static void repl(Environment env){
-        /*try{
-            BufferedReader br = new BufferedReader(new FileReader("D:\\Documents\\UWI\\Level3\\COMP3652\\Assignments\\Project\\smplTest.txt"));
-            try {
-                StringBuilder sb = new StringBuilder();
-                String line = br.readLine();
-
-                while (line != null) {
-                sb.append(line);
-                sb.append(System.lineSeparator());
-                line = br.readLine();
-            }
-            String everything = sb.toString();
-            } finally {
-                br.close();
-            }*/
+    public static void repl(Environment env){        
             InputStreamReader reader = new InputStreamReader(System.in);
-            //while (true) {
+            while (true) {
                 parseEvalShow(reader, env);
-            //}
+            }
 
     }
 

@@ -55,8 +55,8 @@ public class ExpIf extends Exp
     @Override
     public String toString() 
     {	
-            String a = "if" + exp1.toString() + " then " + exp2.toString()+")";
-            String b = "if" + exp1.toString() + " then " + exp2.toString()+ " else "+ exp3.toString();
+            String a = "if " + exp1.toString() + " then " + exp2.toString()+")";
+            String b = "if " + exp1.toString() + " then " + exp2.toString()+ " else "+ exp3.toString();
             
             if (exp3 == null)
             {

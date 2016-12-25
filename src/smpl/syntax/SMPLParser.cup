@@ -81,6 +81,8 @@ terminal NIL;
 
 // terminals with values
 terminal Integer INTEGER;
+terminal Integer BIN;
+terminal Integer HEX;
 terminal Double REAL;
 terminal String VARIABLE;
 terminal Character CHAR;
@@ -101,7 +103,7 @@ non terminal Binding binding;
 
 non terminal Exp expression;  
 
-non terminal Exp makeLit;
+non terminal Exp literal;
 
 non terminal Exp concatenation;
 
@@ -110,6 +112,7 @@ non terminal Exp makeCompound;
 non terminal ArrayList<Exp> expList;
 non terminal ArrayList<Exp> expListAux;
 non terminal Specification specification;
+non terminal Exp spec;
 non terminal ArrayList<Specification> specList;
 non terminal ArrayList<Specification> specListAux;
 
@@ -149,7 +152,7 @@ non terminal Exp readExp;
 
 non terminal empty;
 
-precedence left LPAREN,RPAREN,ELSE,LBRACK,CONCAT,COLON;
+precedence left LPAREN,RPAREN, LBRACK, ELSE,CONCAT,COLON;
 
 /* Grammar rules */
 
@@ -181,8 +184,6 @@ expression ::=  letExp:l {: RESULT = l; :} |
                 ifExp:i {: RESULT = i; :} |
                 multiExp:m {: RESULT = m; :} |
                 caseExp:c {: RESULT = c; :} |
-                makeLit:m {: RESULT = m; :} |
-                concatenation: cn {: RESULT = cn; :} |
                 procedureDef : pd {: RESULT = pd; :} |
                 builtInFn:b {:  RESULT = b; :} |
                 readExp:r {: RESULT = r; :};
@@ -244,13 +245,13 @@ procedureDef ::= PROC LPAREN params:p RPAREN expression:e{:
                     RESULT = new ExpProcedure(p,v,e); :};
 
 params ::= VARIABLE:v paramsAux:pl {:
-                    pl.add(v);
+                    pl.add(0,v);
                     RESULT = pl;
                 :} |
                 empty {: RESULT = new ArrayList(); :};
 
 paramsAux ::= COMMA VARIABLE:v paramsAux:pl {:
-                    pl.add(v);
+                    pl.add(0,v);
                     RESULT = pl;
                 :} |
                 empty {: RESULT = new ArrayList(); :};
@@ -266,13 +267,13 @@ procedureApp ::= VARIABLE:v LPAREN args:ar RPAREN {:
                 :};
 
 args ::= expression:e argsAux:al {:
-                    al.add(e);
+                    al.add(0,e);
                     RESULT = al;
                 :} |
                 empty {: RESULT = new ArrayList(); :};
 
 argsAux ::= COMMA expression:e argsAux:al {:
-                    al.add(e);
+                    al.add(0,e);
                     RESULT = al;
                 :} |
                 empty {: RESULT = new ArrayList(); :};
@@ -291,12 +292,12 @@ logicExp ::=  NOT comparison:c {:  RESULT = new ExpNot(c); :} |
               logicExp:e OR arithExp:c {:  RESULT = new ExpOr(e,c); :} |
               comparison:c {: RESULT = c; :};
 
-comparison ::= comparison:c EQ bitExp:b {: new ExpEQ(c,b); :} |
-               comparison:c GT bitExp:b {: new ExpGT(c,b); :} |
-               comparison:c LT bitExp:b {: new ExpLT(c,b); :} |
-               comparison:c GE bitExp:b {: new ExpGE(c,b); :} |
-               comparison:c LE bitExp:b {: new ExpLE(c,b); :} |
-               comparison:c NEQ bitExp:b {: new ExpNEQ(c,b); :} |
+comparison ::= comparison:c EQ bitExp:b {: RESULT = new ExpEQ(c,b); :} |
+               comparison:c GT bitExp:b {: RESULT = new ExpGT(c,b); :} |
+               comparison:c LT bitExp:b {: RESULT = new ExpLT(c,b); :} |
+               comparison:c GE bitExp:b {: RESULT = new ExpGE(c,b); :} |
+               comparison:c LE bitExp:b {: RESULT = new ExpLE(c,b); :} |
+               comparison:c NEQ bitExp:b {: RESULT = new ExpNEQ(c,b); :} |
                bitExp:b {: RESULT = b; :};
 
 bitExp ::= bitExp:b BITAND arithExp:a {:  RESULT = new ExpBitAnd(b,a); :} |
@@ -319,33 +320,41 @@ term ::= term:t MUL comp:c {:
                 RESULT = new ExpPow(t, c); :} |
 	 comp:c {: RESULT = c; :};
 
-comp ::= COMP factor:f {::} |
-         factor:f{: RESULT = f; :};
+comp ::= COMP factor:f {: RESULT = new ExpComp(f); :} |
+         concatenation:c{: RESULT = c; :};
 
-number ::= INTEGER:ilit {: RESULT = SMPLValue.make(ilit); :}|
-           REAL:ilit {: RESULT =  SMPLValue.make(ilit); :};
+concatenation ::= concatenation:c CONCAT factor:f {: RESULT = new ExpConcat(c,f); :} |
+         factor:f {: RESULT = f; :}; 
 
 factor ::= number:n {: RESULT = new ExpLit(n); :} |
 	   VARIABLE:var {: RESULT = new ExpVar(var); :} |
 	   LPAREN expression:e RPAREN {: RESULT = e; :}	|
-           procedureApp:a {: RESULT = a; :};
+           CAR LPAREN expression:e RPAREN {: RESULT = new ExpCar(e); :} |
+           CDR LPAREN expression:e RPAREN {: RESULT = new ExpCdr(e); :} |
+           SIZE LPAREN expression:e RPAREN {: RESULT = new ExpSize(e); :} |
+           SUBSTRING LPAREN expression:a COMMA expression:b COMMA expression:c RPAREN {:
+                RESULT = new ExpSubstr(a,b,c); :} |
+           literal: l{: RESULT = l; :} |
+           procedureApp:a {: RESULT = a; :} |
+           MINUS factor:f {: f.negate();
+                             RESULT = f; :};
+           
 
-makeLit ::= STRING:s {: RESULT = new ExpLit(s); :} |
+literal ::= STRING:s {: RESULT = new ExpLit(s); :} |
             CHAR: c {: RESULT = new ExpLit(c); :} |
-            NIL {: RESULT = new ExpLit(); :} |
-            BOOLEAN:b {: RESULT = new ExpLit(b); :} ;
+            INTEGER:ilit {: RESULT = new ExpLit(ilit,10); :}|
+            BIN:ilit {: RESULT = new ExpLit(ilit,2); :}|
+            HEX:ilit {: RESULT = new ExpLit(ilit,16); :}|
+            REAL:ilit {: RESULT =  new ExpLit(ilit); :} |
+            BOOLEAN:b {: RESULT = new ExpLit(b); :} |
+            NIL {: RESULT = new ExpLit(); :};            
 
-concatenation ::= expression:a CONCAT expression:b {: new ExpConcat(a,b); :};
 
-builtInFn ::= CAR LPAREN expression:e RPAREN {: RESULT = new ExpCar(e); :} |
-              CDR LPAREN expression:e RPAREN {: RESULT = new ExpCdr(e); :} |
-              PAIR QUERY LPAREN expression:e RPAREN {: RESULT = new ExpIsPair(e); :} |
+
+builtInFn ::= PAIR QUERY LPAREN expression:e RPAREN {: RESULT = new ExpIsPair(e); :} |
               EQV QUERY LPAREN expression:a COMMA expression:b RPAREN {: RESULT = new ExpIsEqv(a,b); :} |
               EQL QUERY LPAREN expression:a COMMA expression:b RPAREN {: RESULT = new ExpIsEql(a,b); :} |
-              expression:e LBRACK expression:n RBRACK {: RESULT = new ExpGet(e,n); :} |
-              SIZE LPAREN expression:e RPAREN {: RESULT = new ExpSize(e); :} |
-              SUBSTRING LPAREN expression:a COMMA expression:b COMMA expression:c RPAREN {:
-                RESULT = new ExpSubstr(a,b,c); :} |
+              expression:e LBRACK expression:n RBRACK {: RESULT = new ExpGet(e,n); :} |              
               makeCompound: m {: RESULT = m; :};
 
 makeCompound ::= PAIR  LPAREN expression:a COMMA expression:b RPAREN {: RESULT = new ExpPair(a,b); :} |
@@ -363,8 +372,15 @@ expListAux ::= COMMA expression:e expListAux:el{:
                 RESULT = el; :} |
             empty {: RESULT = new ArrayList(); :};
 
-specification ::= expression:n COLON expression:f {: RESULT = new Specification(n,f); :} |
-                  expression: e {: RESULT = new Specification(e); :};
+specification ::= expression:n spec:e{: 
+                if(e == null){ 
+                    RESULT = new Specification(n); 
+                }else{
+                    RESULT = new Specification(n,e);
+                } :};
+
+spec ::= COLON expression:e{: RESULT = e; :}|
+         empty {: RESULT = null; :};
 
 specList ::= specification:s specListAux:sl{:
                 sl.add(0,s);

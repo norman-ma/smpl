@@ -35,6 +35,21 @@ public class SMPLProcedure extends SMPLValue<SMPLProcedure>{
         return SMPLType.PROCEDURE;
     }
     
+    public int compareTo(SMPLValue<?> a){
+        if(a.getType().equals(getType())){
+            ExpProcedure x = ((SMPLProcedure)a).getProcedure();
+            Environment<SMPLValue<?>> y = ((SMPLProcedure)a).getClosingEnv();
+            
+            if(procedure.equals(x) && closingEnv.equals(y)){
+                return 0;
+            }else{
+                return -1;
+            }
+        }else{
+            return -1;
+        }
+    }
+    
     public String toString(){
         return procedure.toString();
     }

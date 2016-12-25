@@ -82,7 +82,7 @@ public class Evaluator
 
     public Evaluator() {
 	// perform initialisations here
-	result = SMPLValue.make(0);
+	result = SMPLValue.make(0, 10);
         globalEnv = new Environment<>();
     }
     
@@ -112,7 +112,7 @@ public class Evaluator
 	throws SMPLException {
 	result = p.getSeq().visit(this, arg);
         if(p.isNegative()){
-            return result.mul(SMPLValue.make(-1));
+            return result.mul(SMPLValue.make(-1,10));
         }else{
             return result;
         }
@@ -123,7 +123,7 @@ public class Evaluator
 	throws SMPLException {
 	ArrayList<Statement> seq = sseq.getSeq();
 	Iterator<Statement> iter = seq.iterator();
-	result = SMPLValue.make(0); // default result
+	result = SMPLValue.make(0,10); // default result
         for (Statement s : seq) {
             result = s.visit(this, env);
         }
@@ -218,25 +218,35 @@ public class Evaluator
             ArrayList<String> params = proc.getParameters();
             if(proc.getIdentifier() != null){
                 c = params.size();
+                int n = args.size();
+                
+                if(n < c){
+                    throw new RuntimeSMPLException("Procedure accepts minimum "+c+" arguments. ("+n+" given)");
+                }
+                
                 id = proc.getIdentifier();
                 vars = new String[c+1];
                 vals = new SMPLValue<?>[c+1];
                 for(int i = 0; i <c; i++){
                     vars[i] = params.get(i);
                     vals[i] = args.get(i).visit(this, env);
-                }
+                }                
                 
-                int n = args.size();
-                SMPLValue<?>[] a = new SMPLValue<?>[n];
+                SMPLValue<?>[] a = new SMPLValue<?>[n-c];
             
                 for(int i = c; i<n; i++){
-                    a[i] = args.get(i).visit(this, env);
+                    a[i-c] = args.get(i).visit(this, env);
                 }
                 
                 vars[c] = id;
                 vals[c] = SMPLValue.makeList(a);                
             }else{
                 c = params.size();
+                int a = args.size();
+                
+                if(a != c){
+                    throw new RuntimeSMPLException("Procedure accepts exactly "+c+" arguments. ("+a+" given)");
+                }
                 vars = new String[c];
                 vals = new SMPLValue<?>[c];
                 for(int i = 0; i <c; i++){
@@ -250,7 +260,7 @@ public class Evaluator
 
 	Environment<SMPLValue<?>> newEnv = new Environment<> (vars, vals, closingenv);
         if(exp.isNegative()){
-           return body.visit(this, newEnv).mul(SMPLValue.make(-1));
+           return body.visit(this, newEnv).mul(SMPLValue.make(-1,10));
         }else{
             return body.visit(this, newEnv);
         }	
@@ -263,7 +273,7 @@ public class Evaluator
 	val1 = exp.getExpL().visit(this, arg);
 	val2 = exp.getExpR().visit(this, arg);
         if(exp.isNegative()){
-            return val1.add(val2).mul(SMPLValue.make(-1));
+            return val1.add(val2).mul(SMPLValue.make(-1,10));
         }else{
             return val1.add(val2);
         }	
@@ -276,7 +286,7 @@ public class Evaluator
 	val1 = exp.getExpL().visit(this, arg);
 	val2 = exp.getExpR().visit(this, arg);
 	if(exp.isNegative()){
-            return val1.sub(val2).mul(SMPLValue.make(-1));
+            return val1.sub(val2).mul(SMPLValue.make(-1,10));
         }else{
             return val1.sub(val2);
         }
@@ -289,7 +299,7 @@ public class Evaluator
 	val1 = (SMPLValue) exp.getExpL().visit(this, arg);
 	val2 = (SMPLValue) exp.getExpR().visit(this, arg);
 	if(exp.isNegative()){
-            return val1.mul(val2).mul(SMPLValue.make(-1));
+            return val1.mul(val2).mul(SMPLValue.make(-1,10));
         }else{
             return val1.mul(val2);
         }
@@ -302,7 +312,7 @@ public class Evaluator
 	val1 = (SMPLValue) exp.getExpL().visit(this, arg);
 	val2 = (SMPLValue) exp.getExpR().visit(this, arg);
 	if(exp.isNegative()){
-            return val1.div(val2).mul(SMPLValue.make(-1));
+            return val1.div(val2).mul(SMPLValue.make(-1,10));
         }else{
             return val1.div(val2);
         }
@@ -315,7 +325,7 @@ public class Evaluator
 	val1 = (SMPLValue) exp.getExpL().visit(this, arg);
 	val2 = (SMPLValue) exp.getExpR().visit(this, arg);
 	if(exp.isNegative()){
-            return val1.mod(val2).mul(SMPLValue.make(-1));
+            return val1.mod(val2).mul(SMPLValue.make(-1,10));
         }else{
             return val1.mod(val2);
         }
@@ -325,7 +335,7 @@ public class Evaluator
     public SMPLValue<?> visitExpLit(ExpLit exp, Environment<SMPLValue<?>> arg)
 	throws SMPLException {
         if(exp.isNegative()){
-            return exp.getVal().mul(SMPLValue.make(-1));
+            return exp.getVal().mul(SMPLValue.make(-1,10));
         }else{
             return exp.getVal();
         }	
@@ -335,7 +345,7 @@ public class Evaluator
         public SMPLValue<?> visitExpVar(ExpVar exp, Environment<SMPLValue<?>> env)
 	throws SMPLException {
         if(exp.isNegative()){
-            return env.get(exp.getVar()).mul(SMPLValue.make(-1));
+            return env.get(exp.getVar()).mul(SMPLValue.make(-1,10));
         }else{
             return env.get(exp.getVar());
         }	
@@ -347,7 +357,7 @@ public class Evaluator
 	val1 = (SMPLValue) exp.getExpL().visit(this, arg);
 	val2 = (SMPLValue) exp.getExpR().visit(this, arg);
 	if(exp.isNegative()){
-            return val1.pow(val2).mul(SMPLValue.make(-1));
+            return val1.pow(val2).mul(SMPLValue.make(-1,10));
         }else{
             return val1.pow(val2);
         }
@@ -360,7 +370,11 @@ public class Evaluator
         val1 = s.getExpL().visit(this, arg);
         val2 = s.getExpR().visit(this, arg);
         
-        return SMPLValue.make(val1.doubleValue() == val2.doubleValue());
+        if(val1.compareTo(val2) == 0){
+            return SMPLValue.make(true);
+        }else{
+            return SMPLValue.make(false);
+        }
     }
 
     @Override
@@ -370,7 +384,11 @@ public class Evaluator
         val1 = s.getExpL().visit(this, arg);
         val2 = s.getExpR().visit(this, arg);
         
-        return SMPLValue.make(val1.doubleValue() >= val2.doubleValue());
+         if(val1.compareTo(val2) == 1 || val1.compareTo(val2) == 0){
+            return SMPLValue.make(true);
+        }else{
+            return SMPLValue.make(false);
+        }
     }
 
     @Override
@@ -380,7 +398,11 @@ public class Evaluator
         val1 = s.getExpL().visit(this, arg);
         val2 = s.getExpR().visit(this, arg);
         
-        return SMPLValue.make(val1.doubleValue() > val2.doubleValue());
+        if(val1.compareTo(val2) == 1){
+            return SMPLValue.make(true);
+        }else{
+            return SMPLValue.make(false);
+        }
     }
 
     @Override
@@ -389,8 +411,12 @@ public class Evaluator
         
         val1 = s.getExpL().visit(this, arg);
         val2 = s.getExpR().visit(this, arg);
-        System.out.println(val1.stringValue()+" "+val2.stringValue());
-        return SMPLValue.make(val1.doubleValue() <= val2.doubleValue());
+        
+        if(val1.compareTo(val2) == -1 || val1.compareTo(val2) == 0){
+            return SMPLValue.make(true);
+        }else{
+            return SMPLValue.make(false);
+        }
     }
 
     @Override
@@ -400,7 +426,11 @@ public class Evaluator
         val1 = s.getExpL().visit(this, arg);
         val2 = s.getExpR().visit(this, arg);
         
-        return SMPLValue.make(val1.doubleValue() < val2.doubleValue());
+        if(val1.compareTo(val2) == -1){
+            return SMPLValue.make(true);
+        }else{
+            return SMPLValue.make(false);
+        }
     }
 
     @Override
@@ -410,7 +440,11 @@ public class Evaluator
         val1 = s.getExpL().visit(this, arg);
         val2 = s.getExpR().visit(this, arg);
         
-        return SMPLValue.make(val1.doubleValue() != val2.doubleValue());
+        if(val1.compareTo(val2) == 1 || val1.compareTo(val2) == -1){
+            return SMPLValue.make(true);
+        }else{
+            return SMPLValue.make(false);
+        }
     }
 
     @Override
@@ -464,7 +498,7 @@ public class Evaluator
         ArrayList<Exp> args = new ArrayList<>();
         while(!lst.getType().equals(SMPLType.EMPTYLIST)){
             args.add(new ExpLit(lst.getCar()));
-            lst = (SMPLList) lst.getCdr();
+            lst = (SMPLList)lst.getCdr();
         }
         
         return (new ExpApplyProc(proc.getProcedure(),args)).visit(this,arg);
@@ -532,7 +566,7 @@ public class Evaluator
 	val1 = (SMPLInt) s.getExpL().visit(this, arg);
 	val2 = (SMPLInt) s.getExpR().visit(this, arg);
 	if(s.isNegative()){
-            return val1.bitAnd(val2).mul(SMPLValue.make(-1));
+            return val1.bitAnd(val2).mul(SMPLValue.make(-1,10));
         }else{
             return val1.bitAnd(val2);
         }        
@@ -544,7 +578,7 @@ public class Evaluator
 	val1 = (SMPLInt) s.getExpL().visit(this, arg);
 	val2 = (SMPLInt) s.getExpR().visit(this, arg);
 	if(s.isNegative()){
-            return val1.bitOr(val2).mul(SMPLValue.make(-1));
+            return val1.bitOr(val2).mul(SMPLValue.make(-1,10));
         }else{
             return val1.bitOr(val2);
         }        
@@ -555,7 +589,7 @@ public class Evaluator
         SMPLInt val;
 	val = (SMPLInt) s.getExp().visit(this, arg);
 	if(s.isNegative()){
-            return val.comp().mul(SMPLValue.make(-1));
+            return val.comp().mul(SMPLValue.make(-1,10));
         }else{
             return val.comp();
         }        
@@ -577,7 +611,16 @@ public class Evaluator
 
     @Override
     public SMPLValue<?> visitExpIsEql(ExpIsEql s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SMPLValue<?> val1, val2;
+        
+        val1 = s.getExpL().visit(this, arg);
+        val2 = s.getExpR().visit(this, arg);
+        
+        if(val1.compareTo(val2) == 0){
+            return SMPLValue.make(true);
+        }else{
+            return SMPLValue.make(false);
+        }
     }
 
     @Override
@@ -622,7 +665,7 @@ public class Evaluator
     public SMPLValue<?> visitExpSize(ExpSize s, Environment<SMPLValue<?>> arg) throws SMPLException {
         
         SMPLVector vec = (SMPLVector)s.visit(this, arg);
-        return SMPLValue.make(vec.size());
+        return SMPLValue.make(vec.size(),10);
     }
 
     @Override
@@ -645,7 +688,7 @@ public class Evaluator
             values[i] = items.get(i).visit(this,arg);
         }
         
-        return SMPLValue.makeList(values);
+        return SMPLValue.makeVector(values);
     }
 
     @Override
@@ -667,10 +710,11 @@ public class Evaluator
         return vec.get(index);
     }
 
+    @Override
     public SMPLValue<?> visitSpecification(Specification s, Environment<SMPLValue<?>> arg) throws SMPLException {
-        Exp e = null;
+        Exp e;
         int count;
-        SMPLProcedure proc = null;
+        SMPLProcedure proc;
         
         if(s.getExpression() != null){
             e = s.getExpression();
@@ -681,7 +725,7 @@ public class Evaluator
             ArrayList<SMPLValue> values = new ArrayList<>();
             for(int i = 0; i < count; i++){
                 ArrayList<Exp> args = new ArrayList<>();
-                args.add(new ExpLit(SMPLValue.make(i)));
+                args.add(new ExpLit(SMPLValue.make(i,10)));
                 ExpApplyProc app = new ExpApplyProc(proc.getProcedure(), args);
                 values.add(app.visit(this, arg));
             }

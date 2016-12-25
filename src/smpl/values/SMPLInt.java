@@ -11,12 +11,16 @@ import smpl.sys.SMPLException;
  *
  * @author namro_000
  */
-public class SMPLInt extends SMPLValue<SMPLReal>{
+public class SMPLInt extends SMPLValue<SMPLInt>{
     
     int value;
+    String string;
+    int base;
     
-    public SMPLInt(Integer v){
+    public SMPLInt(Integer v, int i){
         value = v;
+        base = i;
+        string = Integer.toString(value, base);
     }
     
     @Override
@@ -26,7 +30,7 @@ public class SMPLInt extends SMPLValue<SMPLReal>{
     
     public SMPLValue<?> add(SMPLValue<?> a) throws SMPLException{
         if(a.isInteger()){
-            return make(value + a.intValue());
+            return make(value + a.intValue(), base);
         }else{
             return make(value + a.doubleValue());
         }
@@ -34,7 +38,7 @@ public class SMPLInt extends SMPLValue<SMPLReal>{
     
     public SMPLValue<?> sub(SMPLValue<?> a) throws SMPLException{
         if(a.isInteger()){
-            return make(value - a.intValue());
+            return make(value - a.intValue(), base);
         }else{
             return make(value - a.doubleValue());
         }
@@ -42,7 +46,7 @@ public class SMPLInt extends SMPLValue<SMPLReal>{
     
     public SMPLValue<?> mul(SMPLValue<?> a) throws SMPLException{
         if(a.isInteger()){
-            return make(value * a.intValue());
+            return make(value * a.intValue(), base);
         }else{
             return make(value * a.doubleValue());
         }
@@ -50,7 +54,7 @@ public class SMPLInt extends SMPLValue<SMPLReal>{
     
     public SMPLValue<?> div(SMPLValue<?> a) throws SMPLException{
         if(a.isInteger()){
-            return make(value / a.intValue());
+            return make(value / a.intValue(), base);
         }else{
             return make(value / a.doubleValue());
         }
@@ -58,7 +62,7 @@ public class SMPLInt extends SMPLValue<SMPLReal>{
     
     public SMPLValue<?> mod(SMPLValue<?> a) throws SMPLException{
         if(a.isInteger()){
-            return make(value % a.intValue());
+            return make(value % a.intValue(), base);
         }else{
             return make(value % a.doubleValue());
         }
@@ -66,22 +70,44 @@ public class SMPLInt extends SMPLValue<SMPLReal>{
     
     public SMPLValue<?> pow(SMPLValue<?> a) throws SMPLException{
         if(a.isInteger()){
-            return make(Math.pow(value,a.intValue()));
+            return make((int)Math.pow(value,a.intValue()), base);
         }else{
             return make(Math.pow(value,a.doubleValue()));
         }
     }
     
     public SMPLInt bitAnd(SMPLInt a) throws SMPLException{
-        return make(value & a.intValue());
+        return make(value & a.intValue(),base);
     }
     
     public SMPLInt bitOr(SMPLInt a) throws SMPLException{
-        return make(value | a.intValue());
+        return make(value | a.intValue(), base);
     }
     
     public SMPLInt comp() throws SMPLException{
-        return make(~value);
+        return make(~value, base);
+    }
+    
+    public int compareTo(SMPLValue<?> a) throws SMPLException{
+        if(a.isInteger()){
+            if(value < a.intValue()){
+                return -1;
+            }else if (value > a.intValue()){
+                return 1;
+            }else{
+                return 0;
+            }
+        }else if(a.getType().equals(SMPLType.REAL)){
+            if(value < a.doubleValue()){
+                return -1;
+            }else if (value > a.doubleValue()){
+                return 1;
+            }else{
+                return 0;
+            }
+        }else{
+            throw new TypeSMPLException("Compare operation called with non-numeric type");
+        }
     }
     
     @Override
@@ -96,6 +122,6 @@ public class SMPLInt extends SMPLValue<SMPLReal>{
     
     @Override
     public String toString(){
-        return String.valueOf(value);
+        return string;
     }
 }

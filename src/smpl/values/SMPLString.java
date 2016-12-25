@@ -5,6 +5,8 @@
  */
 package smpl.values;
 
+import smpl.sys.SMPLException;
+
 /**
  *
  * @author namro_000
@@ -24,6 +26,22 @@ public class SMPLString extends SMPLValue<SMPLString>{
     public SMPLString concat(SMPLValue<?> s) throws TypeSMPLException {
         return make( value.concat( s.stringValue()) );
     }    
+    
+    public int compareTo(SMPLValue<?> a) throws SMPLException{
+        if(a.getType().equals(getType())){
+            int x = value.compareTo(((SMPLString)a).stringValue());
+            
+            if(x == 0){
+                return x;
+            }else if(x < 0){
+                return -1;
+            }else{
+                return 1;
+            }
+        }else{
+            return -1;
+        }
+    }
     
     @Override
     public String stringValue(){
