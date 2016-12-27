@@ -6,6 +6,7 @@
 package smpl.values;
 
 import java.util.ArrayList;
+import smpl.sys.RuntimeSMPLException;
 import smpl.sys.SMPLException;
 
 /**
@@ -39,8 +40,12 @@ public class SMPLVector extends SMPLValue<SMPLVector>{
         len = value.length;
     }
     
-    public SMPLValue<?> get(int n){
-        return value[n];
+    public SMPLValue<?> get(int n)throws SMPLException{
+        try{
+            return value[n];
+        }catch(ArrayIndexOutOfBoundsException e){
+            throw new RuntimeSMPLException("Vector index out of bounds: "+e.getMessage());
+        }
     }
     
     public int size(){
@@ -86,7 +91,7 @@ public class SMPLVector extends SMPLValue<SMPLVector>{
             default: 
                 items = value[0].toString();
                 for (int i = 1; i < len; i++) {
-                    items += " "+value[i].toString();
+                    items += ", "+value[i].toString();
                 }
         }
         

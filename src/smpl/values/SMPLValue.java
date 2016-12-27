@@ -59,6 +59,11 @@ public abstract class SMPLValue<T extends SMPLValue<T>> {
         return new SMPLSubVector(v);
     }
     
+     public static SMPLTuple makeTuple(SMPLValue<?>[] v){
+        return new SMPLTuple(v);
+    }
+    
+    
     public boolean isInteger(){
         return getType().equals(SMPLType.INTEGER);
     }
@@ -89,6 +94,18 @@ public abstract class SMPLValue<T extends SMPLValue<T>> {
     
     public SMPLValue<?> pow(SMPLValue<?> arg) throws SMPLException {
             throw new TypeSMPLException("Operation pow called with non-numeric type");
+    }
+    
+    public SMPLValue<?> bitAnd(SMPLValue<?> arg) throws SMPLException {
+            throw new TypeSMPLException("Operation bit-wise and called with non-integer type");
+    }
+            
+    public SMPLValue<?> bitOr(SMPLValue<?> arg) throws SMPLException {
+            throw new TypeSMPLException("Operation bit-wise or  called with non-numeric type");
+    }
+    
+    public SMPLValue<?> comp() throws SMPLException {
+            throw new TypeSMPLException("Operation one's complement called with non-numeric type");
     }
     
    public abstract int compareTo(SMPLValue<?> arg) throws SMPLException;

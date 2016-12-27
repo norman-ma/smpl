@@ -13,10 +13,11 @@ import smpl.syntax.ExpComp;
 import smpl.syntax.ExpConcat;
 import smpl.syntax.ExpDiv;
 import smpl.syntax.ExpEQ;
+import smpl.syntax.StmtFor;
 import smpl.syntax.ExpGE;
 import smpl.syntax.ExpGT;
 import smpl.syntax.ExpGet;
-import smpl.syntax.ExpIf;
+import smpl.syntax.StmtIf;
 import smpl.syntax.ExpIsEql;
 import smpl.syntax.ExpIsEqv;
 import smpl.syntax.ExpIsPair;
@@ -40,13 +41,17 @@ import smpl.syntax.ExpSub;
 import smpl.syntax.ExpSubstr;
 import smpl.syntax.ExpVar;
 import smpl.syntax.ExpVector;
+import smpl.syntax.StmtWhile;
 import smpl.syntax.SMPLProgram;
 import smpl.syntax.Specification;
 import smpl.syntax.StmtDefinition;
+import smpl.syntax.StmtInc;
 import smpl.syntax.StmtLet;
+import smpl.syntax.StmtMultiDef;
 import smpl.syntax.StmtPrint;
 import smpl.syntax.StmtSequence;
 import smpl.sys.SMPLException;
+import smpl.values.SMPLPromise;
 
 /**
  * The generic Visitor interface for the Arithmetic parser
@@ -104,7 +109,7 @@ public interface Visitor<S, T> {
     
     public T visitExpCall(ExpCall s, S arg)throws SMPLException;
     
-    public T visitExpIf(ExpIf s, S arg)throws SMPLException;
+    public T visitStmtIf(StmtIf s, S arg)throws SMPLException;
     
     public T visitExpLazy(ExpLazy s, S arg)throws SMPLException;
     
@@ -147,5 +152,15 @@ public interface Visitor<S, T> {
     public T visitExpGet(ExpGet s, S arg)throws SMPLException;
 
     public T visitSpecification(Specification s, S arg)throws SMPLException;
+
+    public T visitSMPLPromise(SMPLPromise s, S arg)throws SMPLException;
+
+    public T visitStmtFor(StmtFor aThis, S arg)throws SMPLException;
+
+    public T visitStmtWhile(StmtWhile aThis, S arg)throws SMPLException;
+
+    public T visitStmtInc(StmtInc aThis, S state) throws SMPLException;
+
+    public T visitStmtMutiDef(StmtMultiDef aThis, S arg)throws SMPLException;
     
 }

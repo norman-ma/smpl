@@ -47,9 +47,8 @@ scan with {:
 /* Terminals (tokens returned by the scanner). */
 
 // special symbols
-terminal LPAREN, RPAREN, LBRACK, RBRACK, LBRACE, RBRACE;
+terminal LPAREN, RPAREN, LBRACK, RBRACK, LBRACE, RBRACE, LCBRACK, RCBRACK;
 terminal SEMI, COLON, COMMA, DOT;
-
 
 // arithmetic operators
 terminal PLUS, MINUS, MUL, DIV, MOD, POW;
@@ -69,11 +68,12 @@ terminal CONCAT;
 terminal PROC, CALL, LAZY;
 terminal DEF, ASSIGN;
 terminal LET;
-terminal IF, THEN, ELSE, CASE;
+terminal IF, THEN, ELSE, CASE, FOR, WHILE, DO, END;
 terminal QUERY;
 terminal PAIR, CAR, CDR, LIST, SIZE;
 terminal EQV, EQL;
 terminal SUBSTRING;
+terminal INC, DEC, SETINC, SETDEC;
 
 terminal PRINT, PRINTLN, READ, READINT;
 
@@ -95,6 +95,7 @@ non terminal StmtSequence stmtList;
 
 non terminal Statement stmt;
 non terminal StmtDefinition definition;
+non terminal StmtMultiDef multiDef;
 
 non terminal StmtLet letExp;
 non terminal ArrayList<Binding> bindings;
@@ -128,10 +129,13 @@ non terminal ArrayList<Exp> argsAux;
 
 non terminal Exp callExp;
 
-non terminal Exp ifExp;
+non terminal Statement loopStmt;
+
+non terminal Statement ifStmt;
+
+non terminal Statement increment;
 
 non terminal Exp multiExp;
-non terminal ArrayList<Exp> exps;
 
 non terminal Exp caseExp;
 non terminal Case case;
@@ -152,9 +156,9 @@ non terminal Exp readExp;
 
 non terminal empty;
 
-precedence left LPAREN,RPAREN, LBRACK, ELSE,CONCAT,COLON;
+precedence left LPAREN, RPAREN, LBRACK, ELSE, COLON, MINUS, ASSIGN;
 
-/* Grammar rules */
+/* Grammar rules */ 
 
 program ::= stmtList:s {: RESULT = new SMPLProgram(s); :};
 
@@ -167,7 +171,11 @@ stmtList ::=  stmtList:lst stmt:s {:
 		:};
 
 stmt ::= definition:d {: RESULT = d; :} |
+         multiDef: m {: RESULT = m; :} |
+         increment: i SEMI {: RESULT = i; :} |
          expression:e SEMI {: RESULT = e; :} |
+         ifStmt: i {: RESULT = i; :} |
+         loopStmt: lp {: RESULT = lp; :} |
          printStmt:p {: RESULT = p; :};
 
 definition ::= VARIABLE:v ASSIGN expression:e SEMI {:
@@ -177,31 +185,34 @@ definition ::= VARIABLE:v ASSIGN expression:e SEMI {:
                 RESULT = new StmtDefinition(v,e);
             :};
 
+multiDef ::= params:p ASSIGN expression:e SEMI{: RESULT = new StmtMultiDef(p,e); :};
+
+increment ::= VARIABLE:v INC{: RESULT = new StmtInc(v,new ExpLit(1,10)); :} |
+             VARIABLE:v SETINC expression:e{: RESULT = new StmtInc(v,e); :} |
+             VARIABLE:v DEC{: RESULT = new StmtInc(v,new ExpLit(-1,10)); :} |
+             VARIABLE:v SETDEC expression:e{: 
+                e.negate();
+                RESULT = new StmtInc(v,e); :};
+
+
 expression ::=  letExp:l {: RESULT = l; :} |
                 LBRACE stmtList:s RBRACE {: RESULT = s; :} |
                 logicExp:lx {: RESULT = lx; :} |
                 callExp:c {: RESULT = c; :} |
-                ifExp:i {: RESULT = i; :} |
                 multiExp:m {: RESULT = m; :} |
                 caseExp:c {: RESULT = c; :} |
                 procedureDef : pd {: RESULT = pd; :} |
                 builtInFn:b {:  RESULT = b; :} |
                 readExp:r {: RESULT = r; :};
 
-multiExp ::= LPAREN expression:e exps:el RPAREN{:
-                el.add(0,e);
+multiExp ::= LPAREN expList:el RPAREN{:              
                 RESULT = new ExpMult(el);
             :};
 
-exps ::=  COMMA expression:e exps:el{:
-                el.add(0,e);
-                RESULT = el;
-            :} |
-            empty{: new ArrayList(); :};
-
 caseExp ::= CASE LBRACE cases:c RBRACE {: RESULT = new ExpCase(c); :};
 
-case ::= expression:a COLON expression:b {: RESULT = new Case(a,b); :};
+case ::= expression:a COLON expression:b {: RESULT = new Case(a,b); :}|
+         ELSE COLON expression:b {: RESULT = new Case(new ExpLit(true),b); :};
 
 cases ::= case:c casesAux:cl {:
             cl.add(0,c);
@@ -214,6 +225,9 @@ casesAux ::= COMMA case:c casesAux:cl{:
             RESULT = cl;
         :} |
         empty {: RESULT = new ArrayList(); :};
+
+loopStmt ::= FOR LPAREN definition:d expression:c SEMI increment:e RPAREN expression:body{: RESULT = new StmtFor(d,c,e,body); :} |
+            WHILE expression:e DO expression:body{: RESULT = new StmtWhile(e,body); :};
 
 letExp ::= LET LPAREN bindings:bs RPAREN expression:body {:
 			RESULT = new StmtLet(bs, body);
@@ -259,8 +273,8 @@ paramsAux ::= COMMA VARIABLE:v paramsAux:pl {:
 procedureApp ::= VARIABLE:v LPAREN args:ar RPAREN {:                    
                     RESULT =  new ExpApplyProc(v,ar); 
                 :} |
-                LPAREN procedureDef:pd RPAREN LPAREN args:ar RPAREN{:
-                    RESULT = new ExpApplyProc(pd,ar);
+                LPAREN expression:e RPAREN LPAREN args:ar RPAREN{:
+                    RESULT = new ExpApplyProc(e,ar);
 		:} |
                 procedureApp:pa LPAREN args:ar RPAREN{: 
                     RESULT = new ExpApplyProc(pa,ar);
@@ -282,8 +296,8 @@ callExp ::= CALL LPAREN expression:a COMMA expression:b RPAREN {:
                     RESULT = new ExpCall(a,b);
                 :};
 
-ifExp ::= IF expression:i THEN expression:t{: RESULT = new ExpIf(i,t); :} |
-          IF expression:i THEN expression:t ELSE expression:e {: RESULT = new ExpIf(i,t,e); :};
+ifStmt ::= IF expression:i THEN expression:t{: RESULT = new StmtIf(i,t); :} |
+          IF expression:i THEN expression:t ELSE expression:e {: RESULT = new StmtIf(i,t,e); :};
 
 lazyExp ::= LAZY LPAREN expression:e RPAREN {: RESULT = new ExpLazy(e); :};
 
@@ -335,13 +349,14 @@ factor ::= number:n {: RESULT = new ExpLit(n); :} |
            SUBSTRING LPAREN expression:a COMMA expression:b COMMA expression:c RPAREN {:
                 RESULT = new ExpSubstr(a,b,c); :} |
            literal: l{: RESULT = l; :} |
+           lazyExp: lz{: RESULT = lz; :} |
            procedureApp:a {: RESULT = a; :} |
            MINUS factor:f {: f.negate();
                              RESULT = f; :};
            
 
 literal ::= STRING:s {: RESULT = new ExpLit(s); :} |
-            CHAR: c {: RESULT = new ExpLit(c); :} |
+            CHAR:c {: RESULT = new ExpLit(c); :} |
             INTEGER:ilit {: RESULT = new ExpLit(ilit,10); :}|
             BIN:ilit {: RESULT = new ExpLit(ilit,2); :}|
             HEX:ilit {: RESULT = new ExpLit(ilit,16); :}|
@@ -360,7 +375,7 @@ builtInFn ::= PAIR QUERY LPAREN expression:e RPAREN {: RESULT = new ExpIsPair(e)
 makeCompound ::= PAIR  LPAREN expression:a COMMA expression:b RPAREN {: RESULT = new ExpPair(a,b); :} |
                  LIST LPAREN expList:l RPAREN {: RESULT = new ExpList(l); :} |
                  LBRACK expList:l RBRACK {: RESULT = new ExpList(l); :} |
-                 LBRACK COLON specList:l COLON RBRACK {: RESULT = new ExpVector(l); :};
+                 LCBRACK specList:l RCBRACK {: RESULT = new ExpVector(l); :};
 
 expList ::= expression:e expListAux:el{:
                 el.add(0,e);

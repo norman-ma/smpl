@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class ExpApplyProc extends Exp {
     
     ArrayList<Exp> arguments;
-    ExpProcedure function;
+    Exp function;
     ExpApplyProc functionApp;
     String variable;
 
@@ -19,7 +19,7 @@ public class ExpApplyProc extends Exp {
         super();
     }
 
-    public ExpApplyProc( ExpProcedure fn, ArrayList<Exp> args) {
+    public ExpApplyProc( Exp fn, ArrayList<Exp> args) {
         this.arguments = args;
         this.function = fn;
     }
@@ -38,11 +38,11 @@ public class ExpApplyProc extends Exp {
         return arguments;
     }    
 
-    public ExpProcedure getFunction() {
+    public Exp getFunction() {
         return function;
     }
     
-    public ExpApplyProc getFunctionApplication() {
+    public ExpApplyProc getFunctionExp() {
         return functionApp;
     }
     

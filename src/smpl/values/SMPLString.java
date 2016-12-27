@@ -24,7 +24,7 @@ public class SMPLString extends SMPLValue<SMPLString>{
     }
     
     public SMPLString concat(SMPLValue<?> s) throws TypeSMPLException {
-        return make( value.concat( s.stringValue()) );
+        return make(value.concat( s.stringValue()) );
     }    
     
     public int compareTo(SMPLValue<?> a) throws SMPLException{

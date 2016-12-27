@@ -53,18 +53,26 @@ public class SMPLInt extends SMPLValue<SMPLInt>{
     }
     
     public SMPLValue<?> div(SMPLValue<?> a) throws SMPLException{
-        if(a.isInteger()){
-            return make(value / a.intValue(), base);
-        }else{
-            return make(value / a.doubleValue());
+        try{
+            if(a.isInteger()){
+                return make(value / a.intValue(), base);
+            }else{
+                return make(value / a.doubleValue());
+            }
+        }catch(ArithmeticException ar){
+            throw new MathSMPLException("MathError: "+ar.getMessage());
         }
     }
     
     public SMPLValue<?> mod(SMPLValue<?> a) throws SMPLException{
-        if(a.isInteger()){
-            return make(value % a.intValue(), base);
-        }else{
-            return make(value % a.doubleValue());
+        try{
+            if(a.isInteger()){
+                return make(value % a.intValue(), base);
+            }else{
+                return make(value % a.doubleValue());
+            }
+        }catch(ArithmeticException ar){
+            throw new MathSMPLException("MathError: "+ar.getMessage());
         }
     }
     

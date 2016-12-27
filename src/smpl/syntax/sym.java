@@ -8,69 +8,79 @@ package smpl.syntax;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int SUBSTRING = 49;
-  public static final int QUERY = 41;
-  public static final int POW = 17;
-  public static final int CHAR = 60;
-  public static final int GE = 24;
-  public static final int CONCAT = 30;
-  public static final int READINT = 53;
-  public static final int CAR = 43;
-  public static final int CASE = 40;
-  public static final int INTEGER = 55;
-  public static final int CDR = 44;
-  public static final int LPAREN = 2;
-  public static final int SEMI = 8;
-  public static final int HEX = 57;
-  public static final int PRINTLN = 51;
-  public static final int MINUS = 13;
-  public static final int RPAREN = 3;
-  public static final int NOT = 29;
-  public static final int AND = 27;
-  public static final int LT = 23;
-  public static final int NIL = 54;
-  public static final int OR = 28;
-  public static final int COMMA = 10;
-  public static final int LAZY = 33;
-  public static final int CALL = 32;
-  public static final int COMP = 20;
-  public static final int DIV = 15;
-  public static final int PLUS = 12;
-  public static final int IF = 37;
-  public static final int ASSIGN = 35;
-  public static final int DOT = 11;
-  public static final int LE = 25;
-  public static final int BOOLEAN = 62;
-  public static final int EOF = 0;
-  public static final int SIZE = 46;
-  public static final int error = 1;
-  public static final int BITOR = 19;
-  public static final int MUL = 14;
-  public static final int MOD = 16;
-  public static final int NEQ = 26;
-  public static final int PAIR = 42;
-  public static final int EQ = 21;
-  public static final int LBRACK = 4;
-  public static final int REAL = 58;
-  public static final int EQV = 47;
-  public static final int COLON = 9;
-  public static final int BIN = 56;
-  public static final int ELSE = 39;
-  public static final int LBRACE = 6;
-  public static final int VARIABLE = 59;
-  public static final int READ = 52;
+  public static final int QUERY = 47;
+  public static final int REAL = 68;
+  public static final int GT = 24;
+  public static final int READ = 62;
+  public static final int HEX = 67;
+  public static final int GE = 26;
+  public static final int SEMI = 10;
   public static final int RBRACK = 5;
-  public static final int EQL = 48;
-  public static final int LIST = 45;
-  public static final int LET = 36;
-  public static final int THEN = 38;
+  public static final int COMMA = 12;
   public static final int RBRACE = 7;
-  public static final int BITAND = 18;
-  public static final int STRING = 61;
-  public static final int PROC = 31;
-  public static final int DEF = 34;
-  public static final int GT = 22;
-  public static final int PRINT = 50;
+  public static final int RPAREN = 3;
+  public static final int POW = 19;
+  public static final int LBRACK = 4;
+  public static final int LT = 25;
+  public static final int EQV = 53;
+  public static final int INTEGER = 65;
+  public static final int LBRACE = 6;
+  public static final int LPAREN = 2;
+  public static final int RCBRACK = 9;
+  public static final int EQL = 54;
+  public static final int NOT = 31;
+  public static final int LCBRACK = 8;
+  public static final int DEF = 36;
+  public static final int LE = 27;
+  public static final int NIL = 64;
+  public static final int DEC = 57;
+  public static final int READINT = 63;
+  public static final int THEN = 40;
+  public static final int PROC = 33;
+  public static final int COMP = 22;
+  public static final int EQ = 23;
+  public static final int MUL = 16;
+  public static final int PRINTLN = 61;
+  public static final int MOD = 18;
+  public static final int SETDEC = 59;
+  public static final int CDR = 50;
+  public static final int PLUS = 14;
+  public static final int WHILE = 44;
+  public static final int ASSIGN = 37;
+  public static final int CHAR = 70;
+  public static final int BOOLEAN = 72;
+  public static final int DO = 45;
+  public static final int VARIABLE = 69;
+  public static final int FOR = 43;
+  public static final int DIV = 17;
+  public static final int BITOR = 21;
+  public static final int CONCAT = 32;
+  public static final int ELSE = 41;
+  public static final int DOT = 13;
+  public static final int EOF = 0;
+  public static final int BIN = 66;
+  public static final int PRINT = 60;
+  public static final int INC = 56;
+  public static final int MINUS = 15;
+  public static final int BITAND = 20;
+  public static final int OR = 30;
+  public static final int SUBSTRING = 55;
+  public static final int error = 1;
+  public static final int PAIR = 48;
+  public static final int LIST = 51;
+  public static final int IF = 39;
+  public static final int SETINC = 58;
+  public static final int END = 46;
+  public static final int COLON = 11;
+  public static final int LAZY = 35;
+  public static final int CASE = 42;
+  public static final int STRING = 71;
+  public static final int SIZE = 52;
+  public static final int CAR = 49;
+  public static final int NEQ = 28;
+  public static final int AND = 29;
+  public static final int LET = 38;
+  public static final int CALL = 34;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
@@ -80,6 +90,8 @@ public class sym {
   "RBRACK",
   "LBRACE",
   "RBRACE",
+  "LCBRACK",
+  "RCBRACK",
   "SEMI",
   "COLON",
   "COMMA",
@@ -113,6 +125,10 @@ public class sym {
   "THEN",
   "ELSE",
   "CASE",
+  "FOR",
+  "WHILE",
+  "DO",
+  "END",
   "QUERY",
   "PAIR",
   "CAR",
@@ -122,6 +138,10 @@ public class sym {
   "EQV",
   "EQL",
   "SUBSTRING",
+  "INC",
+  "DEC",
+  "SETINC",
+  "SETDEC",
   "PRINT",
   "PRINTLN",
   "READ",

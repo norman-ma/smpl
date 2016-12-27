@@ -28,30 +28,43 @@ public class SMPLReal extends SMPLValue<SMPLReal>{
         return SMPLType.REAL;
     }
     
+    @Override
     public SMPLReal add(SMPLValue<?> a) throws SMPLException{
         return make(value+a.doubleValue());
     }
     
+    @Override
     public SMPLReal sub(SMPLValue<?> a) throws SMPLException{
         return make(value-a.doubleValue());
     }
     
+    @Override
     public SMPLReal mul(SMPLValue<?> a) throws SMPLException{
         return make(value*a.doubleValue());
     }
     
+    @Override
     public SMPLReal div(SMPLValue<?> a) throws SMPLException{
-        return make(value/a.doubleValue());
+        if(a.doubleValue() == 0){
+            throw new MathSMPLException("Math Error: / by zero");
+        }
+        return make(value / a.doubleValue());
     }
     
+    @Override
     public SMPLReal mod(SMPLValue<?> a) throws SMPLException{
-        return make(value%a.doubleValue());
+        if(a.doubleValue() == 0){
+            throw new MathSMPLException("Math Error: / by zero");
+        }        
+        return make(value % a.doubleValue());
     }
     
+    @Override
     public SMPLReal pow(SMPLValue<?> a) throws SMPLException{
         return make(Math.pow(value, a.doubleValue()));
     }
     
+    @Override
     public int compareTo(SMPLValue<?> a) throws SMPLException{
         if(a.isInteger()){
             if(value < a.intValue()){

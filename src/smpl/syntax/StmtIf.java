@@ -12,20 +12,20 @@ import smpl.sys.SMPLException;
  *
  * @author romariotomlin
  */
-public class ExpIf extends Exp 
+public class StmtIf extends Exp 
 {
 
     Exp exp1;
     Exp exp2;
     Exp exp3;
 
-    public ExpIf(Exp e1, Exp e2) 
+    public StmtIf(Exp e1, Exp e2) 
     {
         exp1 = e1;
         exp2 = e2;
     }
     
-    public ExpIf(Exp e1, Exp e2, Exp e3)
+    public StmtIf(Exp e1, Exp e2, Exp e3)
     {
         exp1 = e1;
         exp2 = e2;
@@ -49,7 +49,7 @@ public class ExpIf extends Exp
     
 @Override
     public <S, T> T visit(Visitor<S,T> v, S arg) throws SMPLException {
-	return v.visitExpIf(this, arg);
+	return v.visitStmtIf(this, arg);
     }
 
     @Override

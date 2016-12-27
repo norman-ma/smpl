@@ -25,6 +25,8 @@ import java_cup.runtime.*;
 %line
 
 %{
+    StringBuilder string = new StringBuilder();
+
     public int getChar() {
 	return yychar + 1;
     }
@@ -44,6 +46,8 @@ import java_cup.runtime.*;
 
 nl = [\n\r]
 
+LineTerminator = \r|\n|nl|cc
+
 cc = [\b\f]
 
 ws = {cc}|[\t ]
@@ -54,10 +58,13 @@ num = [0-9]
 
 hex = [0-9A-Fa-f]
 
-op = [+-/*\^@]
+op = [+-\.\!#]
 
-alphanum = {alpha}|{num}|{op}
+alphanum = {alpha}|{num}
 
+StringCharacter = [^\r\n\"\\]
+
+%state STRING
 %%
 
 //Comments
@@ -66,7 +73,9 @@ alphanum = {alpha}|{num}|{op}
 	            }
 <YYINITIAL>	"/*" [^*] ~"*/" | "/*" "*"+"/" {}
 
-<YYINITIAL>     {ws}    {}
+<YYINITIAL>	{ws}	{
+                        //skip whitespace
+			}
 
 <YYINITIAL>	{nl}	{
                         //skip newline, but reset char counter
@@ -108,6 +117,14 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>	"}"	{return new Symbol(sym.RBRACE);}
 <YYINITIAL>	"["	{return new Symbol(sym.LBRACK);}
 <YYINITIAL>	"]"	{return new Symbol(sym.RBRACK);}
+<YYINITIAL>	"[:"	{return new Symbol(sym.LCBRACK);}
+<YYINITIAL>	":]"	{return new Symbol(sym.RCBRACK);}
+
+<YYINITIAL>	" ++"	{return new Symbol(sym.INC);}
+<YYINITIAL>	" --"	{return new Symbol(sym.DEC);}
+<YYINITIAL>	" += "	{return new Symbol(sym.SETINC);}
+<YYINITIAL>	" -= "	{return new Symbol(sym.SETDEC);}
+
 
 <YYINITIAL>	","	{return new Symbol(sym.COMMA);}
 <YYINITIAL>	";" 	{return new Symbol(sym.SEMI);}
@@ -124,7 +141,7 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>	"def"	{return new Symbol(sym.DEF);}
 <YYINITIAL>	" := "	{return new Symbol(sym.ASSIGN);}
 
-//Let keywird
+//Let keyword
 <YYINITIAL>	"let"	{return new Symbol(sym.LET);}
 
 //Control Structures
@@ -132,6 +149,11 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>	"then"	{return new Symbol(sym.THEN);}
 <YYINITIAL>	"else"	{return new Symbol(sym.ELSE);}
 <YYINITIAL>     "case"  {return new Symbol(sym.CASE);}
+<YYINITIAL>     "for"   {return new Symbol(sym.FOR);}
+<YYINITIAL>     "while"   {return new Symbol(sym.WHILE);}
+<YYINITIAL>     "do"   {return new Symbol(sym.DO);}
+<YYINITIAL>     "end"  {return new Symbol(sym.END);}
+
 
 //Query tag
 <YYINITIAL>     "?"  {return new Symbol(sym.QUERY);}
@@ -170,9 +192,28 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>    #c.    {return new Symbol(sym.CHAR, new Character(yytext().charAt(2)));}
 <YYINITIAL>    #u{hex}+   {return new Symbol(sym.CHAR, Character.toChars(Integer.parseInt(yytext().substring(2))));}	
 
-//String Literals
-<YYINITIAL>    \"(.[^\"]*)\"  {return new Symbol(sym.STRING, yytext().substring(1,yytext().length()-1));}
-<YYINITIAL>     \"\"          {return new Symbol(sym.STRING,"");}
+/* string literal */
+<YYINITIAL>    \" { yybegin(STRING); string.setLength(0); }
+
+<STRING> {
+  \"    { yybegin(YYINITIAL); return new Symbol(sym.STRING, string.toString()); }
+  
+  {StringCharacter}+             { string.append( yytext() ); }
+  
+  /* escape sequences */
+  "\\b"                          { string.append( '\b' ); }
+  "\\t"                          { string.append( '\t' ); }
+  "\\n"                          { string.append( '\n' ); }
+  "\\f"                          { string.append( '\f' ); }
+  "\\r"                          { string.append( '\r' ); }
+  "\\\""                         { string.append( '\"' ); }
+  "\\'"                          { string.append( '\'' ); }
+  "\\\\"                         { string.append( '\\' ); }
+  
+  /* error cases */
+  \\.                            { throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
+  {LineTerminator}               { throw new RuntimeException("Unterminated string at end of line"); }
+}
     
 //Boolean literals
 <YYINITIAL>    #t   {return new Symbol(sym.BOOLEAN,new Boolean(true));}
@@ -182,4 +223,5 @@ alphanum = {alpha}|{num}|{op}
 <YYINITIAL>    #e   {return new Symbol(sym.NIL);}
 
 //Variable
-<YYINITIAL>    ({alpha}|{num})({alphanum}|#)* {return new Symbol(sym.VARIABLE, yytext());}
+<YYINITIAL>    {alphanum}({alpha}|{op})*  {return new Symbol(sym.VARIABLE, yytext());}
+<YYINITIAL>    {alpha}({alphanum}|{op})*  {return new Symbol(sym.VARIABLE, yytext());}
