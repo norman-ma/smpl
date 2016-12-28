@@ -223,5 +223,4 @@ StringCharacter = [^\r\n\"\\]
 <YYINITIAL>    #e   {return new Symbol(sym.NIL);}
 
 //Variable
-<YYINITIAL>    {alphanum}({alpha}|{op})*  {return new Symbol(sym.VARIABLE, yytext());}
-<YYINITIAL>    {alpha}({alphanum}|{op})*  {return new Symbol(sym.VARIABLE, yytext());}
+<YYINITIAL>    {alphanum}+?({alpha}|{op})*  {return new Symbol(sym.VARIABLE, yytext());}
